@@ -18,14 +18,17 @@ class AWareHouse(models.Model):
 # Note: we do not want to delete any ticket, just update status
 class Ticket(models.Model):
     PickupWareHouseID = models.ForeignKey(AWareHouse, on_delete=models.CASCADE)
+    beginProcess = models.BooleanField(default=False)
 
 
 # Create Package
 class Package(models.Model):
     PackageID = models.BigIntegerField(primary_key=True)  # required int64 PackageID
-    Owner = models.ForeignKey(User, on_delete=models.CASCADE)  # ForeignKey User
+    # When Amazon send Package info, we only have EmailAddress, once user resistor with this address, we add into user
+    Owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None)  # ForeignKey User
     x = models.BigIntegerField()  # required int64 x
     y = models.BigIntegerField()  # required int64 y
+    EmailAddress = models.EmailField()  # Email address sent from Amazon
 
     # Package status:
     # 1. Processing: UPS receive pickup request from Amazon but do not send any truck
@@ -45,7 +48,8 @@ class Package(models.Model):
     # One Ticket has many packages
     TicketID = models.ForeignKey(Ticket, related_name='ticket_packages', on_delete=models.CASCADE)  # Ticket.packages
     # One Truck has many packages
-    TruckID = models.ForeignKey(Ticket, related_name='truck_packages', on_delete=models.CASCADE)  # Truck.packages
+    TruckID = models.ForeignKey(Ticket, related_name='truck_packages', on_delete=models.CASCADE,
+                                null=True)  # Truck.packages
 
 
 # Create Truck
