@@ -9,7 +9,18 @@ import java.sql.Statement;
 
 public class PostgreSQLJDBC {
     private static PostgreSQLJDBC postgreSQLJDBC;
-    private Connection c = null;
+
+
+    /**
+     * Construct of PostgreSQLJDBC which clear the tables and build the tables
+     */
+    private PostgreSQLJDBC(){
+        // TODO clear table if exist
+
+        // Create tables
+
+
+    }
 
     /**
      * Get the instance of PostgreSQLJDBC
@@ -20,13 +31,6 @@ public class PostgreSQLJDBC {
         return postgreSQLJDBC;
     }
 
-    /**
-     * Construct of PostgreSQLJDBC which clear the tables and build the tables
-     */
-    private PostgreSQLJDBC(){
-        // clear table if exist
-
-    }
 
     /**
      * Connect Database
@@ -35,7 +39,6 @@ public class PostgreSQLJDBC {
         Connection c;
         try {
             Class.forName("org.postgresql.Driver");
-            // TODO use environment var: change to database when in use
             c = DriverManager.getConnection("jdbc:postgresql://database:5432/postgres",
                     "postgres", "postgres");
             return c;
@@ -62,11 +65,15 @@ public class PostgreSQLJDBC {
     private boolean runSQLUpdate(String sql){
         Statement statement;
         try {
-            this.c = connectDB();
+            Connection c = connectDB();
+
+            //Assert connect to db
+            assert c != null;
+
             statement = c.createStatement();
             statement.executeUpdate(sql);
             statement.close();
-            this.c.close();
+            c.close();
             return true;
         } catch (SQLException e) {
             Logger logger = Logger.getSingleton();

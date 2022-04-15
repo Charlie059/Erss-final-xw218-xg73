@@ -1,4 +1,4 @@
-FROM gradle:7.3.3
+FROM gradle:7.3
 EXPOSE 12345/tcp
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
