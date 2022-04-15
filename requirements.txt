@@ -1,0 +1,7 @@
+Django~=4.0.4
+pip~=21.1.2
+wheel~=0.36.2
+sqlparse~=0.4.2
+psycopg2~=2.9.3
+asgiref~=3.5.0
+setuptools~=57.0.0
