@@ -13,9 +13,39 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
 
+  web-init:
+    build: ./frontend
+    volumes:
+      - ./frontend:/code
+    command:
+      - /code/init.sh
+    depends_on:
+      - database
+
+  web:
+    build: ./frontend
+    user: nobody
+    command:
+      - /code/run.sh
+    volumes:
+      - ./frontend:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - web-init
+      - database
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/config:/etc/nginx/conf.d
+    depends_on:
+      - web
+
   run:
     build: ./backend
     depends_on:
       - database
+      - web
     ports:
       - "12345:12345"
