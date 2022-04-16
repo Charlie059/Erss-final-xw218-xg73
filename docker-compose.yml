@@ -17,8 +17,7 @@ services:
     build: ./frontend
     volumes:
       - ./frontend:/code
-    command:
-      - /code/init.sh
+    command: bash -c "/code/wait-db.sh database:5432 --strict -- ./init.sh"
     depends_on:
       - database
 
