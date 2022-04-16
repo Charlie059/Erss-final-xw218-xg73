@@ -5,3 +5,6 @@ sqlparse~=0.4.2
 psycopg2~=2.9.3
 asgiref~=3.5.0
 setuptools~=57.0.0
+django-crispy-forms
+Pillow~=9.0.0
+Django-Verify-Email==1.0.9
