@@ -11,7 +11,7 @@ public class App {
         final String WORLD_HOST = "207.246.90.49";
         final int WORLD_PORT = 23456;
 
-        WorldConnect worldConnect = new WorldConnect(WORLD_HOST, WORLD_PORT);
-        worldConnect.setupConnection();
+        WorldConnect worldConnector = new WorldConnect(WORLD_HOST, WORLD_PORT);
+        worldConnector.setupConnection();
     }
 }
