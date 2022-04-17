@@ -15,9 +15,11 @@ public class AUMsgFactory {
         this.port = port;
     }
 
-    public UpsAmazon.AUResponse generateAUResponse(ArrayList<Long> acks){
-        UpsAmazon.AUResponse.Builder builder = UpsAmazon.AUResponse.newBuilder();
+    public UpsAmazon.AURequest generateAURequest(ArrayList<Long> acks){
+        UpsAmazon.AURequest.Builder builder = UpsAmazon.AURequest.newBuilder();
         builder.addAllAcks(acks);
         return builder.build();
     }
+
+  
 }

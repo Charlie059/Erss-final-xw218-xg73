@@ -20,10 +20,6 @@ public class AmazonConnectorTest {
 
   @Test
   public void test_ups_amazon_connect() throws IOException {
-    ArrayList<Long> acks = new ArrayList<Long>();
-    acks.add((long)0);
-    //    boolean add = acks.add(new Long("0"));
-    UpsAmazon.AUResponse auResponse = auMsgFactory.generateAUResponse(acks);
     int port = 10000;
     Thread th = new Thread(){
         @Override
@@ -31,13 +27,17 @@ public class AmazonConnectorTest {
           //amazon side
           Socket socket = null;
           try {
+            ArrayList<Long> acks = new ArrayList<Long>();
+            acks.add((long)0);
+            //    boolean add = acks.add(new Long("0"));
+            UpsAmazon.AURequest auRequest = auMsgFactory.generateAURequest(acks);
             socket = new Socket("localhost", 10000);
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
             UpsAmazon.USendWorldID.Builder new_world_builder = UpsAmazon.USendWorldID.newBuilder();
             recvMsgFrom(new_world_builder, in);
             assertEquals(1, new_world_builder.getWorldId());
-            sendMsgTo(auResponse, out);
+            sendMsgTo(auRequest, out);
           } catch (IOException e) {
             e.printStackTrace();
           }
