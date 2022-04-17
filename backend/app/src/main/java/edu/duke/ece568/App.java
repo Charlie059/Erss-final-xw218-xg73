@@ -3,15 +3,51 @@
  */
 package edu.duke.ece568;
 
+import edu.duke.ece568.utils.AmazonConnector;
 import edu.duke.ece568.utils.WorldConnect;
 
+import java.io.IOException;
+
 public class App {
-    public static void main(String[] args) {
+    final String WORLD_HOST = "localhost";
+    final int WORLD_PORT = 23456;
+    private static long seqnum=0;
+    private WorldConnect worldConnector;
+    private AmazonConnector amazonConnector;
 
-        final String WORLD_HOST = "207.246.90.49";
-        final int WORLD_PORT = 23456;
+    public App(){//TODO pass hosts and ports info
 
-        WorldConnect worldConnector = new WorldConnect(WORLD_HOST, WORLD_PORT);
+    }
+
+    /**
+     * Connects to world/Connects to amazon
+     * @throws IOException
+     */
+    public void setup() throws IOException {
+        //TODO refactor to multiple thread
+        worldConnector = new WorldConnect(WORLD_HOST, WORLD_PORT);
         worldConnector.setupConnection();
+
+        //amazonConnector = new AmazonConnector(worldConnector.getWorldid());
+        //amazonConnector.connectAmazon_socket();
+
+    }
+
+    public void run(){
+        //Run Amazon Listener/World Listener/Front end Listener
+    }
+
+    /**
+     * Gets and increment the seqnum
+     * @return the requested sequence number
+     */
+    public static synchronized long getSeqnum(){
+        return seqnum++;
+    }
+
+    public static void main(String[] args) throws IOException {
+        App app = new App();
+        app.setup();
+        app.run();
     }
 }
