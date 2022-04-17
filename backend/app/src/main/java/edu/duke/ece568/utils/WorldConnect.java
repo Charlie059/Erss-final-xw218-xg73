@@ -62,7 +62,7 @@ public class WorldConnect {
         init_truck(10);
 
         // Init uConnect message
-        WorldUps.UConnect uConnect = init_world_connect_info(this.trucks, false, 1);
+        WorldUps.UConnect uConnect = init_world_connect_info(this.trucks, true, 1);
 
         // Send uConnect to world and receive UConnected response
         WorldUps.UConnected uConnected = uconnect_world(uConnect);

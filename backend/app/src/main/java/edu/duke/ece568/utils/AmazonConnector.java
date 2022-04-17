@@ -51,9 +51,9 @@ public class AmazonConnector {
         UpsAmazon.USendWorldID uSendWorldID = init_USendWorldID();
         sendMsgTo(uSendWorldID, out);
         System.out.println("Sending ups connect message to Amazon");
-        UpsAmazon.AUResponse.Builder auResponse = UpsAmazon.AUResponse.newBuilder();
-        recvMsgFrom(auResponse, in);
-        System.out.println("Receiving ack from Amazon: " + auResponse.getAcks(0));
-        return auResponse.getAcks(0);
+        UpsAmazon.AURequest.Builder auRequest = UpsAmazon.AURequest.newBuilder();
+        recvMsgFrom(auRequest, in);
+        System.out.println("Receiving ack from Amazon: " + auRequest.getAcks(0));
+        return auRequest.getAcks(0);
     }
 }

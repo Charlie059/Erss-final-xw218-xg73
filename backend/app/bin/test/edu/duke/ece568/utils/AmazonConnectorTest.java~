@@ -21,8 +21,7 @@ public class AmazonConnectorTest {
   @Test
   public void test_ups_amazon_connect() throws IOException {
     ArrayList<Long> acks = new ArrayList<Long>();
-    acks.add((long)0);
-    //    boolean add = acks.add(new Long("0"));
+    boolean add = acks.add(new Long("0"));
     UpsAmazon.AUResponse auResponse = auMsgFactory.generateAUResponse(acks);
     int port = 10000;
     Thread th = new Thread(){
@@ -47,8 +46,6 @@ public class AmazonConnectorTest {
 
         th.start();
         //ups side
-        //AmazonThread amazonThread = new AmazonThread(10000, 1);
-        //amazonThread.start();
         AmazonConnector amazonConnector = new AmazonConnector(10000, 1);
         amazonConnector.connectAmazon_socket();
         assertEquals(0, amazonConnector.processWorldMsg());
