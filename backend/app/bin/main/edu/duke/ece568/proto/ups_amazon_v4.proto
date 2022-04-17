@@ -58,7 +58,7 @@ message UShipmentStatusUpdate {
     required int64 seqnum = 2;
 }
 message UPackageDetailRequest{
-    required string account_name = 1;
+    required int64 package_id = 1;
     required int64 seqnum = 2;
 }
 message Product {

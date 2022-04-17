@@ -24,6 +24,7 @@ public class WorldConnect {
     private final ArrayList<WorldUps.UInitTruck> trucks;
     private InputStream in;
     private OutputStream out;
+    long worldid;
 
     /**
      * Constructor of WorldConnect
@@ -45,10 +46,12 @@ public class WorldConnect {
             this.out = world_socket.getOutputStream();
             this.in = world_socket.getInputStream();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error in world connector construction");
         }
     }
-
+    public long getWorldid(){
+        return this.worldid;
+    }
     /**
      * Sets up the connection to the world: init trucks and send uconnect to world
      */
@@ -59,7 +62,7 @@ public class WorldConnect {
         init_truck(10);
 
         // Init uConnect message
-        WorldUps.UConnect uConnect = init_world_connect_info(this.trucks, false, 1);
+        WorldUps.UConnect uConnect = init_world_connect_info(this.trucks, true, 1);
 
         // Send uConnect to world and receive UConnected response
         WorldUps.UConnected uConnected = uconnect_world(uConnect);
@@ -88,7 +91,7 @@ public class WorldConnect {
         System.out.println("Connect to host: " + world_host);
         try {
             world_socket = new Socket(world_host, world_port);
-            System.out.println("Successfully connect to world in socket" + world_socket.getPort());
+            System.out.println("Successfully connect to world in socket " + world_socket.getPort());
         } catch (IOException e) {
             System.err.println("Error in connecting to world");
         }
@@ -132,7 +135,10 @@ public class WorldConnect {
         recvMsgFrom(response, this.in);
 
         // Check response success or not
-        if (response.getResult().equals("connected!")) return response.build();
+        if (response.getResult().equals("connected!")) {
+            worldid = response.getWorldid();
+            return response.build();
+        }
         else return null;
     }
 
