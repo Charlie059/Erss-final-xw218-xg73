@@ -46,5 +46,3 @@ services:
     depends_on:
       - database
       - web
-    ports:
-      - "12345:12345"

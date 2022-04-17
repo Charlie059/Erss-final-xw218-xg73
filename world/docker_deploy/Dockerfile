@@ -11,7 +11,6 @@ EXPOSE 2345
 
 # install google protocol buffer
 RUN wget https://github.com/google/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.tar.gz
-
 RUN tar xzf protobuf-cpp-3.6.0.tar.gz
 RUN cd ./protobuf-3.6.0  && ./configure && make && make install
 RUN ldconfig
