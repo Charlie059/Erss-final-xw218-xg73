@@ -102,14 +102,15 @@ public class WorldSendHandler implements Runnable{
 
                 // Add the msgWrapper to resendQueue
                 if(!this.resendQueue.contains(msgWrapper)) {
-                    this.resendQueue.add(msgWrapper);
-                    System.out.println("ADD resendQueue");
+
+                    // if type is not setSimspeed and setDisconnect, add to resendQueue
+                    if(type != 3 && type != 4){
+                        this.resendQueue.add(msgWrapper);
+                    }
                 }
 
             }
 
-//            // Sleep 1 s
-//            trySleep(1000);
 
         }
     }
