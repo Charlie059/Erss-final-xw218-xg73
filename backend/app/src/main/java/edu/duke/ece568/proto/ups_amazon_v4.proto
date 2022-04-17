@@ -1,0 +1,89 @@
+syntax = "proto2";
+option java_multiple_files = false;
+option java_package = "edu.duke.ece568.proto";
+option java_outer_classname = "UpsAmazon";
+message USendWorldID {
+    required int64 world_id = 1;
+    required int64 seqnum = 2;
+}
+
+message AWareHouseLocation {
+    required int64 warehouseid = 1;
+    required int64 x = 2;
+    required int64 y = 3;
+}
+
+message AShipment {
+    required int64 package_id = 1;
+    required int64 dest_x = 2;
+    required int64 dest_y = 3;
+    required string emailaddress = 4;
+}
+
+message AShippingRequest {
+    required AWareHouseLocation location = 1;
+    repeated AShipment shipment = 2;
+    required int64 seqnum = 3;
+}
+
+message UTracking {
+    required int64 package_id = 1;
+    required string tracking_number = 2;
+}
+
+message UShippingResponse {
+    required int64 truck_id = 1;
+    repeated UTracking u_tracking = 2;
+    required int64 seqnum = 3;
+}
+message UTruckArrivedNotification {
+    required int64 truck_id = 1;
+    required int64 seqnum = 2;
+}
+message ATruckLoadedNotification {
+    required int64 truck_id = 1;
+    required int64 seqnum = 2;
+}
+message AUShipmentUpdate {
+    required int64 package_id = 1;
+    required string status = 2;
+}
+
+message AShipmentStatusUpdate {
+    repeated AUShipmentUpdate au_shipment_update = 1;
+    required int64 seqnum = 2;
+}
+message UShipmentStatusUpdate {
+    repeated AUShipmentUpdate au_shipment_update= 1;
+    required int64 seqnum = 2;
+}
+message UPackageDetailRequest{
+    required int64 package_id = 1;
+    required int64 seqnum = 2;
+}
+message Product {
+    required string discription = 1;
+    required int32 count = 2;
+}
+message Package{
+    repeated Product product = 1;
+}
+message APackageDetailResponse{
+    map<int64,Package> packagemap = 1;
+    required int64 seqnum = 2;
+}
+message AURequest {
+    repeated AShippingRequest shipping_request = 1;
+    repeated ATruckLoadedNotification loaded = 2;
+    repeated AShipmentStatusUpdate shipment_status_update = 3;
+    repeated APackageDetailResponse package_detail = 4;
+	repeated int64 acks = 5;
+}
+
+message AUResponse {
+    repeated UShippingResponse shipping_response = 1;
+    repeated UTruckArrivedNotification arrived = 2;
+    repeated UShipmentStatusUpdate shipment_status_update = 3;
+    repeated UPackageDetailRequest package_detail = 4;
+	repeated int64 acks = 5;
+}
