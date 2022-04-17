@@ -15,10 +15,6 @@ public class PostgreSQLJDBC {
      * Construct of PostgreSQLJDBC which clear the tables and build the tables
      */
     private PostgreSQLJDBC(){
-        // TODO clear table if exist
-
-        // Create tables
-
 
     }
 
