@@ -36,7 +36,7 @@ public class AmazonConnector {
         this.in = amazon_socket.getInputStream();
     }
 
-    public UpsAmazon.USendWorldID init_USendWorldID(){
+    private UpsAmazon.USendWorldID init_USendWorldID(){
         UpsAmazon.USendWorldID.Builder new_world_builder = UpsAmazon.USendWorldID.newBuilder();
         new_world_builder.setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());//increment overall seqnum here
         new_world_builder.setWorldId(worldid);
