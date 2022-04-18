@@ -68,7 +68,7 @@ public class PostgreSQLJDBC {
             Connection c = connectDB();
 
             //Assert connect to db
-            assert c != null;
+            //assert c != null;
 
             statement = c.createStatement();
             statement.executeUpdate(sql);

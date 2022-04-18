@@ -10,8 +10,8 @@ import edu.duke.ece568.utils.WorldConnect;
 import java.io.IOException;
 
 public class App {
-    final String WORLD_HOST = "152.3.43.44";
-    final int WORLD_PORT = 23456;
+    final String WORLD_HOST = "207.246.90.49";
+    final int WORLD_PORT = 12345;
     final int AMAZON_PORT = 11111;
     private static long seqnum=0;
     private WorldConnect worldConnector;
