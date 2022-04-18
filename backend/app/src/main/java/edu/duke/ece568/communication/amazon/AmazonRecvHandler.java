@@ -4,6 +4,7 @@ import edu.duke.ece568.communication.world.WorldCommunicator;
 import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.proto.WorldUps;
 import edu.duke.ece568.utils.Logger;
+import edu.duke.ece568.utils.SeqNumGenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +22,7 @@ public class AmazonRecvHandler implements Runnable{
 
     private Socket amazonSocket;
     private WorldCommunicator worldCommunicator;
+    private AmazonCommunicator amazonCommunicator;
     private InputStream in;
     private OutputStream out;
     private HashSet<Long> handledSet; // record all seqNum which has handled before
@@ -31,11 +33,13 @@ public class AmazonRecvHandler implements Runnable{
     /**
      * AmazonRecvHandler should recv message and handle any response
      * @param amazonSocket AmazonSocket
+     * @param amazonCommunicator
      * @param worldCommunicator worldCommunicator can send any msg to world
      * @param recvQueue RecvQueue place seqNum
      */
-    public AmazonRecvHandler(Socket amazonSocket, WorldCommunicator worldCommunicator, Queue<Long> recvQueue){
+    public AmazonRecvHandler(Socket amazonSocket, AmazonCommunicator amazonCommunicator, WorldCommunicator worldCommunicator, Queue<Long> recvQueue){
         this.amazonSocket = amazonSocket;
+        this.amazonCommunicator = amazonCommunicator;
         this.worldCommunicator = worldCommunicator;
         this.recvQueue = recvQueue;
         this.handledSet = new HashSet<>();
@@ -56,7 +60,7 @@ public class AmazonRecvHandler implements Runnable{
     @Override
     public void run() {
         while(true){
-            // Build a new response
+            // Build a new response to recv
             UpsAmazon.AURequest.Builder uResponses = UpsAmazon.AURequest.newBuilder();
 
             // if nothing recv, it should block
@@ -194,7 +198,34 @@ public class AmazonRecvHandler implements Runnable{
             // (6) Send UShippingResponse Amazon with Truck_id and UTracking(package_id and String tracking_number)
             //      Note: package_id and String tracking_number can be same
 
+            // TODO THIS IS TEST
+            UpsAmazon.UShippingResponse.Builder response = UpsAmazon.UShippingResponse.newBuilder();
+            response.setTruckId(1).setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());
 
+            // Send Msg to Amazon
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.amazonCommunicator.sendMsg(response.build(), 1);
+
+
+            // Send a UGoPickup to World
+            WorldUps.UGoPickup.Builder uGoPickup = WorldUps.UGoPickup.newBuilder();
+            uGoPickup.setTruckid(1);
+            uGoPickup.setWhid(1);
+            uGoPickup.setSeqnum(3);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            this.worldCommunicator.sendMsg(uGoPickup.build(), 1);
+
+            // TODO THIS IS TEST
 
             // Add to responseACKList for response ACKs
             responseACKList.add(aShippingRequest.getSeqnum());

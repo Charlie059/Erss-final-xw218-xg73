@@ -47,7 +47,7 @@ public class WorldCommunicator {
      */
     public void runThreads(){
         // Create recv thread
-        WorldRecvHandler worldRecvHandler = new WorldRecvHandler(this.worldSocket, this.amazonCommunicator, this.recvQueue);
+        WorldRecvHandler worldRecvHandler = new WorldRecvHandler(this.worldSocket, this, this.amazonCommunicator, this.recvQueue);
         new Thread(worldRecvHandler).start();
 
         // Create send thread

@@ -53,6 +53,9 @@ public class App {
 
         // Run WorldCommunicator threads
         worldCommunicator.runThreads();
+
+        // inf loops
+        while (true){}
     }
 
 

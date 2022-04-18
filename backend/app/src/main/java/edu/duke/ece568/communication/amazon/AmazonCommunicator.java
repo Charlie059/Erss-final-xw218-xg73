@@ -37,7 +37,7 @@ public class AmazonCommunicator {
 
     public void runThreads(){
         // Create recv thread
-        AmazonRecvHandler amazonRecvHandler = new AmazonRecvHandler(this.amazonSocket, this.worldCommunicator, this.recvQueue);
+        AmazonRecvHandler amazonRecvHandler = new AmazonRecvHandler(this.amazonSocket, this , this.worldCommunicator, this.recvQueue);
         new Thread(amazonRecvHandler).start();
 
         // Create send thread

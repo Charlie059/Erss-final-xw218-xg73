@@ -112,6 +112,7 @@ public class WorldSendHandler implements Runnable{
         try {
             TimeLimitedCodeBlock.runWithTimeout(() -> {
                 sendMsgTo(uCommand.build(), out);
+                Logger.getSingleton().write("Send Message: \n" + uCommand.build());
             }, 2, TimeUnit.SECONDS);
         }
         catch (Exception ignored) {

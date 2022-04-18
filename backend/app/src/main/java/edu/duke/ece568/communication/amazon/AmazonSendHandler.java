@@ -101,6 +101,7 @@ public class AmazonSendHandler implements Runnable{
             TimeLimitedCodeBlock.runWithTimeout(() -> {
                 sendMsgTo(uCommand.build(), out);
             }, 2, TimeUnit.SECONDS);
+            Logger.getSingleton().write("Send Message: \n" + uCommand.build());
         } catch (Exception ignored) {
             System.out.println("Cannot send: retry");
         }
