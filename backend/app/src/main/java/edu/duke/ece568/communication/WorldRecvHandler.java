@@ -16,7 +16,8 @@ import static edu.duke.ece568.utils.GPBHelper.sendMsgTo;
 
 public class WorldRecvHandler implements Runnable{
 
-    private Socket socket;
+    private Socket worldSocket;
+    private Socket amazonSocket;
     private InputStream in;
     private OutputStream out;
 
@@ -25,17 +26,18 @@ public class WorldRecvHandler implements Runnable{
 
     /**
      * WorldRecvHandler should recv message and
-     * @param socket
+     * @param worldSocket
+     * @param amazonSocket
      * @param recvQueue
      */
-    public WorldRecvHandler(Socket socket, Queue<Long> recvQueue){
-        this.socket = socket;
+    public WorldRecvHandler(Socket worldSocket, Socket amazonSocket, Queue<Long> recvQueue){
+        this.worldSocket = worldSocket;
         this.recvQueue = recvQueue;
-
+        this.amazonSocket = amazonSocket;
         // Get in and output stream
         try {
-            this.out = socket.getOutputStream();
-            this.in = socket.getInputStream();
+            this.out = worldSocket.getOutputStream();
+            this.in = worldSocket.getInputStream();
         } catch (IOException e) {
             // log error
             Logger.getSingleton().write("WorldRecvHandler: cannot get output or input stream");

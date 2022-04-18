@@ -41,17 +41,31 @@ public class WorldResendHandler implements Runnable{
                 Long seqNum;
                 // Poll the msg
                 ArrayList<Object> msg =  this.resendQueue.poll();
-                assert msg != null;
+
                 Integer type = (Integer) msg.get(0);
                 // Based on the type, we know what the object it is
-                seqNum = switch (type) {
-                    case 1 -> ((WorldUps.UGoPickup) msg.get(1)).getSeqnum();
-                    case 2 -> ((WorldUps.UGoDeliver) msg.get(1)).getSeqnum();
-                    case 5 -> ((WorldUps.UQuery) msg.get(1)).getSeqnum();
-                    default -> -1L;
-                };
+//                seqNum = switch (type) {
+//                    case 1 -> ((WorldUps.UGoPickup) msg.get(1)).getSeqnum();
+//                    case 2 -> ((WorldUps.UGoDeliver) msg.get(1)).getSeqnum();
+//                    case 5 -> ((WorldUps.UQuery) msg.get(1)).getSeqnum();
+//                    default -> -1L;
+//                };
 
-                assert seqNum != -1L;
+                switch(type){
+                    case 1:
+                        seqNum = ((WorldUps.UGoPickup) msg.get(1)).getSeqnum();
+                        break;
+                    case 2:
+                        seqNum = ((WorldUps.UGoDeliver) msg.get(1)).getSeqnum();
+                        break;
+                    case 5:
+                        seqNum = ((WorldUps.UQuery) msg.get(1)).getSeqnum();
+                        break;
+                    default:
+                        seqNum = -1L;
+                }
+
+//                assert seqNum != -1L;
 
                 // Check if recvQueue not contains that ACK
                 if(!this.recvQueue.contains(seqNum)){

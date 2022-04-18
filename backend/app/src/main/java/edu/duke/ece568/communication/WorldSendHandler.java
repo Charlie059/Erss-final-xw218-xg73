@@ -74,17 +74,27 @@ public class WorldSendHandler implements Runnable{
 
                 // Pick the first msgWrapper and send out then add to the resendQueue
                 ArrayList<Object> msgWrapper =  this.sendQueue.poll();
-                assert msgWrapper != null;
+
                 Integer type = (Integer) msgWrapper.get(0);
                 Object msg = msgWrapper.get(1);
 
                 // Based on the type, we know what the object it is
                 switch (type) {
-                    case 1 -> uCommand.addPickups((WorldUps.UGoPickup) msg);
-                    case 2 -> uCommand.addDeliveries((WorldUps.UGoDeliver) msg);
-                    case 3 -> uCommand.setSimspeed((Integer) msg);
-                    case 4 -> uCommand.setDisconnect((Boolean) msg);
-                    case 5 -> uCommand.addQueries((WorldUps.UQuery) msg);
+                    case 1:
+                        uCommand.addPickups((WorldUps.UGoPickup) msg);
+                        break;
+                    case 2:
+                        uCommand.addDeliveries((WorldUps.UGoDeliver) msg);
+                        break;
+                    case 3:
+                        uCommand.setSimspeed((Integer) msg);
+                        break;
+                    case 4:
+                        uCommand.setDisconnect((Boolean) msg);
+                        break;
+                    case 5:
+                        uCommand.addQueries((WorldUps.UQuery) msg);
+                        break;
                 }
 
                 OutputStream out = this.out;
@@ -110,6 +120,7 @@ public class WorldSendHandler implements Runnable{
                 }
 
             }
+
 
 
         }
