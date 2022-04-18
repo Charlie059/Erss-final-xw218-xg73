@@ -38,7 +38,7 @@ public class AmazonConnector {
 
     public UpsAmazon.USendWorldID init_USendWorldID(){
         UpsAmazon.USendWorldID.Builder new_world_builder = UpsAmazon.USendWorldID.newBuilder();
-        new_world_builder.setSeqnum(App.getSeqnum());//increment overall seqnum here
+        new_world_builder.setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());//increment overall seqnum here
         new_world_builder.setWorldId(worldid);
         return new_world_builder.build();
     }
@@ -56,5 +56,10 @@ public class AmazonConnector {
         recvMsgFrom(auRequest, in);
         System.out.println("Receiving ack from Amazon: " + auRequest.getAcks(0));
         return auRequest.getAcks(0);
+    }
+
+
+    public Socket getAmazon_socket() {
+        return amazon_socket;
     }
 }

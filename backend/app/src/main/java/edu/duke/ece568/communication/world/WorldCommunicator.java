@@ -1,5 +1,6 @@
-package edu.duke.ece568.communication;
+package edu.duke.ece568.communication.world;
 
+import edu.duke.ece568.communication.amazon.AmazonCommunicator;
 import edu.duke.ece568.utils.Logger;
 
 import java.net.Socket;
@@ -15,38 +16,47 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class WorldCommunicator {
     // WorldCommunicator should receive socket from WorldConnect class
     private Socket worldSocket;
-    private Socket amazonSocket;
     private volatile Queue<Long> recvQueue; // recvQueue form server
     private volatile Queue<ArrayList<Object>> sendQueue; // sendQueue to server: Object and type
     private Queue<ArrayList<Object>> resendQueue;   // Resend Queue
+
+
+    // WorldCommunicator should have AmazonCommunicator
+    private AmazonCommunicator amazonCommunicator;
 
     /**
      * Constructor of WorldCommunicator
      * @param worldSocket of world
      */
-    public WorldCommunicator(Socket worldSocket, Socket amazonSocket){
+    public WorldCommunicator(Socket worldSocket, AmazonCommunicator amazonCommunicator){
         // log WorldCommunicator
         Logger.getSingleton().write("WorldCommunicator: " + worldSocket.getInetAddress().getHostAddress());
 
         // Create a new thread-safe recvQueue and sendQueue
         this.worldSocket = worldSocket;
-        this.amazonSocket = amazonSocket;
+        this.amazonCommunicator = amazonCommunicator;
+
         this.recvQueue = new ConcurrentLinkedQueue<>();
         this.sendQueue = new ConcurrentLinkedQueue<>();
         this.resendQueue = new ConcurrentLinkedQueue<>();
+    }
 
+
+    /**
+     * Run ALL THREADS: recv, send and resend
+     */
+    public void runThreads(){
         // Create recv thread
-        WorldRecvHandler worldRecvHandler = new WorldRecvHandler(this.worldSocket, this.amazonSocket,  this.recvQueue);
+        WorldRecvHandler worldRecvHandler = new WorldRecvHandler(this.worldSocket, this.amazonCommunicator, this.recvQueue);
         new Thread(worldRecvHandler).start();
 
         // Create send thread
-        WorldSendHandler worldSendHandler = new WorldSendHandler(this.worldSocket, this.sendQueue, this.recvQueue, this.resendQueue);
+        WorldSendHandler worldSendHandler = new WorldSendHandler(this.worldSocket, this.sendQueue, this.resendQueue);
         new Thread(worldSendHandler).start();
 
-        // Create WorldResendHandler thread
+        // Create resend thread
         WorldResendHandler worldResendHandler = new WorldResendHandler(this.sendQueue, this.recvQueue, this.resendQueue);
         new Thread(worldResendHandler).start();
-
     }
 
 
