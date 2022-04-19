@@ -26,6 +26,7 @@ public class WorldRecvHandler implements Runnable{
 
     private Socket worldSocket;
     private AmazonCommunicator amazonCommunicator;
+    private WorldCommunicator worldCommunicator;
     private InputStream in;
     private OutputStream out;
     private AUMsgFactory auMsgFactory;
@@ -36,10 +37,12 @@ public class WorldRecvHandler implements Runnable{
     /**
      * WorldRecvHandler should recv message and handle any response
      * @param worldSocket WorldSocket
+     * @param worldCommunicator
      * @param recvQueue recvQueue
      */
-    public WorldRecvHandler(Socket worldSocket, AmazonCommunicator amazonCommunicator, Queue<Long> recvQueue){
+    public WorldRecvHandler(Socket worldSocket, WorldCommunicator worldCommunicator, AmazonCommunicator amazonCommunicator, Queue<Long> recvQueue){
         this.worldSocket = worldSocket;
+        this.worldCommunicator = worldCommunicator;
         this.amazonCommunicator = amazonCommunicator;
         this.recvQueue = recvQueue;
         this.handledSet = new HashSet<>();

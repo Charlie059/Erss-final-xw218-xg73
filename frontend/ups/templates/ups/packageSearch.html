@@ -1,0 +1,28 @@
+{% extends "ups/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="content-section">
+    <form method="POST">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Search For Package with Tracking Number</legend>
+            {{ form|crispy }}
+        </fieldset>
+        <div class="form-group">
+            <button class="btn btn-outline-info" type="submit">Search</button>
+        </div>
+    </form>
+</div>
+{% for data in data %}
+<article class="media content-section">
+    <div class="media-body">
+        <p class="article-content"> X: {{ data.x }}</p>
+        <p class="article-content"> Y: {{ data.y }}</p>
+        <p class="article-content"> EmailAddress: {{ data.EmailAddress }}</p>
+        <p class="article-content"> Current Status: {{ data.Status }}</p>
+        <p class="article-content"> CreateTime: {{ data.CreateTime|date:"Y F, d, H:m" }}</p>
+        <p class="article-content"> UpdateTime: {{ data.UpdateTime|date:"Y F, d, H:m" }}</p>
+    </div>
+</article>
+{% endfor %}
+{% endblock content %}

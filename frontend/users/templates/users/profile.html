@@ -9,6 +9,33 @@
           <p class="text-secondary">{{ user.email }}</p>
         </div>
       </div>
-      <!-- FORM HERE -->
+      <form method="POST" enctype="multipart/form-data">
+        {%  csrf_token %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Update Profile</legend>
+            {{ u_form|crispy }}
+        </fieldset>
+        <div class="form-group">
+            <button class="btn btn-outline-info" type="submit">Update</button>
+        </div>
+    </form>
     </div>
+
+{% for package in packages %}
+<article class="media content-section">
+    <div class="media-body">
+        <p class="article-content"> Tracking ID: {{ package.PackageID }}</p>
+        <p class="article-content"> X: {{ package.x }}</p>
+        <p class="article-content"> Y: {{ package.y }}</p>
+        <p class="article-content"> EmailAddress: {{ package.EmailAddress }}</p>
+        <p class="article-content"> Current Status: {{ package.Status }}</p>
+        <p class="article-content"> CreateTime: {{ package.CreateTime|date:"Y F, d, H:m" }}</p>
+        <p class="article-content"> UpdateTime: {{ package.UpdateTime|date:"Y F, d, H:m" }}</p>
+        {% for item in package.items.all %}
+                <p class="article-content"> Item: {{item.ItemName}}</p>
+                <p class="article-content"> Count: {{item.Count}}</p>
+        {% endfor %}
+    </div>
+</article>
+{% endfor %}
 {% endblock content %}

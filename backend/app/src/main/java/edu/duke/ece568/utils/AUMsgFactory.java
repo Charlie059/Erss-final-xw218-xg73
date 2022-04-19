@@ -31,6 +31,13 @@ public class AUMsgFactory {
         uShipmentStatusUpdate.setSeqnum(seqnum);
         return uShipmentStatusUpdate.build();
     }
+
+    public UpsAmazon.UShipmentStatusUpdate generateUShipmentStatusUpdates(ArrayList<UpsAmazon.AUShipmentUpdate> auShipmentUpdates, long seqnum){
+        UpsAmazon.UShipmentStatusUpdate.Builder uShipmentStatusUpdate = UpsAmazon.UShipmentStatusUpdate.newBuilder();
+        uShipmentStatusUpdate.addAllAuShipmentUpdate(auShipmentUpdates);
+        uShipmentStatusUpdate.setSeqnum(seqnum);
+        return uShipmentStatusUpdate.build();
+    }
     public UpsAmazon.UTracking generateUTracking(long packagdid, long trackingnum){
         UpsAmazon.UTracking.Builder uTracking = UpsAmazon.UTracking.newBuilder();
         uTracking.setPackageId(packagdid);

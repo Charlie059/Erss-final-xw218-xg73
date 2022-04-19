@@ -70,6 +70,7 @@ public class PostgreSQLJDBC {
             statement = c.createStatement();
             statement.executeUpdate(sql);
             statement.close();
+            c.commit();
             c.close();
             return true;
         } catch (SQLException e) {
@@ -91,6 +92,7 @@ public class PostgreSQLJDBC {
             statement = c.createStatement();
             ResultSet result = statement.executeQuery(sql);
             statement.close();
+            c.commit();
             c.close();
             return result;
         } catch (SQLException e) {
@@ -99,6 +101,8 @@ public class PostgreSQLJDBC {
             return null;
         }
     }
+
+
 
 
 }

@@ -10,12 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 import static edu.duke.ece568.utils.GPBHelper.recvMsgFrom;
 import static edu.duke.ece568.utils.GPBHelper.sendMsgTo;
@@ -24,6 +22,7 @@ public class AmazonRecvHandler implements Runnable{
 
     private Socket amazonSocket;
     private WorldCommunicator worldCommunicator;
+    private AmazonCommunicator amazonCommunicator;
     private InputStream in;
     private OutputStream out;
     private HashSet<Long> handledSet; // record all seqNum which has handled before
@@ -35,11 +34,13 @@ public class AmazonRecvHandler implements Runnable{
     /**
      * AmazonRecvHandler should recv message and handle any response
      * @param amazonSocket AmazonSocket
+     * @param amazonCommunicator
      * @param worldCommunicator worldCommunicator can send any msg to world
      * @param recvQueue RecvQueue place seqNum
      */
-    public AmazonRecvHandler(Socket amazonSocket, WorldCommunicator worldCommunicator, Queue<Long> recvQueue){
+    public AmazonRecvHandler(Socket amazonSocket, AmazonCommunicator amazonCommunicator, WorldCommunicator worldCommunicator, Queue<Long> recvQueue){
         this.amazonSocket = amazonSocket;
+        this.amazonCommunicator = amazonCommunicator;
         this.worldCommunicator = worldCommunicator;
         this.recvQueue = recvQueue;
         this.handledSet = new HashSet<>();
@@ -61,7 +62,7 @@ public class AmazonRecvHandler implements Runnable{
     @Override
     public void run() {
         while(true){
-            // Build a new response
+            // Build a new response to recv
             UpsAmazon.AURequest.Builder uResponses = UpsAmazon.AURequest.newBuilder();
 
             // if nothing recv, it should block
@@ -155,8 +156,11 @@ public class AmazonRecvHandler implements Runnable{
 
             // Handle the message
             // Get the list of AUShipmentUpdate and update Package Status and UpdateTime
-
-
+            List<UpsAmazon.AUShipmentUpdate> ids = aShipmentStatusUpdate.getAuShipmentUpdateList();
+            for(int i=0; i<ids.size(); i++){
+                String update_package = "UPDATE ups_package SET Status = " + ids.get(0).getStatus() + " WHERE PackageId = " + ids.get(i).getPackageId() + ";";
+                PostgreSQLJDBC.getInstance().runSQLUpdate(update_package);
+            }
             responseACKList.add(aShipmentStatusUpdate.getSeqnum());
             this.handledSet.add(aShipmentStatusUpdate.getSeqnum());
         }
@@ -167,7 +171,7 @@ public class AmazonRecvHandler implements Runnable{
      * @param responseACKList
      * @param loadedNotificationList
      */
-    private void handleATruckLoadedNotification(ArrayList<Long> responseACKList, List<UpsAmazon.ATruckLoadedNotification> loadedNotificationList) {
+    private void handleATruckLoadedNotification(ArrayList<Long> responseACKList, List<UpsAmazon.ATruckLoadedNotification> loadedNotificationList) throws SQLException {
         for (UpsAmazon.ATruckLoadedNotification aTruckLoadedNotification : loadedNotificationList) {
             // If that seqNum has been handled before, continue
             if(this.handledSet.contains(aTruckLoadedNotification.getSeqnum())) continue;
@@ -180,10 +184,33 @@ public class AmazonRecvHandler implements Runnable{
 
             // (1.1) update packages status to DELI, updateTime()
             //TODO no package id
-            //String update_package = "UPDATE ups_package SET Status = 'delivering', UpdateTime = " + TimeGetter.getCurrTime() + " WHERE PackageID = " + aTruckLoadedNotification.
+            // Find Packages of the current truck
+            String package_query = "SELECT PackageID x, yROM ups_package WHERE truck_id = " + aTruckLoadedNotification.getTruckId() + ";";
+            ResultSet rs = PostgreSQLJDBC.getInstance().runSQLSelect(package_query);
+            Array packages = rs.getArray(0);
+            Array x = rs.getArray(1);
+            Array y = rs.getArray(2);
+            ArrayList<Integer> packages_id = (ArrayList<Integer>) packages.getArray();
+            ArrayList<Integer> xs = (ArrayList<Integer>) x.getArray();
+            ArrayList<Integer> ys = (ArrayList<Integer>) y.getArray();
+            ArrayList<WorldUps.UDeliveryLocation> locations  = new ArrayList<>();
+            for(int i=0; i<packages_id.size(); i++){
+                locations.add(worldMsgFactory.generateUDeliveryLocation(packages_id.get(i), xs.get(i), ys.get(i)));
+            }
+            String update_package = "UPDATE ups_package SET Status = 'delivering', UpdateTime = " + TimeGetter.getCurrTime() + " WHERE TruckID_id = " + aTruckLoadedNotification.getTruckId() + ";";
+            PostgreSQLJDBC.getInstance().runSQLUpdate(update_package);
             // (2) TODO Send UGODeliver CMD to World by using WorldCommunicator
             //2.1
+            WorldUps.UGoDeliver uGoDeliver = worldMsgFactory.generateUGoDeliver((int) aTruckLoadedNotification.getTruckId(), locations, SeqNumGenerator.getInstance().getCurrent_id());
+            worldCommunicator.sendMsg(uGoDeliver, 2);
+
             //TODO send package status update UShipmentStatusUpdate
+            ArrayList<UpsAmazon.AUShipmentUpdate> updates = new ArrayList<>();
+            for(int i=0; i<packages_id.size(); i++){
+                updates.add(auMsgFactory.generateAUShipmentUpdate(packages_id.get(i), "Delivering"));
+            }
+            UpsAmazon.UShipmentStatusUpdate uShipmentStatusUpdate = auMsgFactory.generateUShipmentStatusUpdates(updates, SeqNumGenerator.getInstance().getCurrent_id());
+            this.amazonCommunicator.sendMsg(uShipmentStatusUpdate, 3);
             responseACKList.add(aTruckLoadedNotification.getSeqnum());
             this.handledSet.add(aTruckLoadedNotification.getSeqnum());
         }
@@ -212,12 +239,11 @@ public class AmazonRecvHandler implements Runnable{
             PostgreSQLJDBC.getInstance().runSQLUpdate(truck_update);
             // (4) Based on the list of AShipment(packageID, x, y, emailAddress), create a list of UPS_Package
             // Status = PROC, CreateTime and UpdateTime, Owner_id = null, TicketId = (2)'s ticket_id ,TruckID = (3).truckID
-            // (5) Send UGOPickUp CMD to World by using WorldCommunicator
-            WorldUps.UGoPickup uGoPickup = worldMsgFactory.generateUGoPickup(truck_id, aShippingRequest.getLocation().getWarehouseid(), SeqNumGenerator.getInstance().getCurrent_id());
-            // (6) Send UShippingResponse Amazon with Truck_id and UTracking(package_id and String tracking_number)
-            worldCommunicator.sendMsg(uGoPickup,1);
-            //      Note: package_id and String tracking_number can be same
-            // (7) Generate UShippingResponse CMD and wrap it to auResponse to Amazon
+            for(UpsAmazon.AShipment aShipment: aShippingRequest.getShipmentList()){
+                String insert_package = "INSERT (x, y, EmailAddress, Status, CreateTime, UpdateTime, TruckId) INTO ups_package VALUES (" + aShipment.getDestX() + " " + aShipment.getDestY() + " '" + TimeGetter.getCurrTime() + "' " + TimeGetter.getCurrTime() + "' " + truck_id + ";";
+                PostgreSQLJDBC.getInstance().runSQLUpdate(insert_package);
+            }
+            // (7) TODO first Generate UShippingResponse CMD and wrap it to auResponse to Amazon
             ArrayList<UpsAmazon.UTracking> uTrackings = new ArrayList<>();
             for(UpsAmazon.UTracking uTracking : uTrackings){
                 uTrackings.add(auMsgFactory.generateUTracking(uTracking.getPackageId(), TrackNumberGenerator.getInstance().getCurrent_id()));
@@ -226,6 +252,42 @@ public class AmazonRecvHandler implements Runnable{
             UpsAmazon.AUResponse.Builder auResponse = UpsAmazon.AUResponse.newBuilder();
             auResponse.addShippingResponse(uShippingResponse);
             sendMsgTo(uShippingResponse, this.out);
+
+            // (5) Send UGOPickUp CMD to World by using WorldCommunicator to let the trucks to arrive to warehouse
+            WorldUps.UGoPickup uGoPickup = worldMsgFactory.generateUGoPickup(truck_id, aShippingRequest.getLocation().getWarehouseid(), SeqNumGenerator.getInstance().getCurrent_id());
+            // (6) Send UShippingResponse Amazon with Truck_id and UTracking(package_id and String tracking_number)
+            worldCommunicator.sendMsg(uGoPickup,1);
+            //      Note: package_id and String tracking_number can be same
+
+
+//            // TODO THIS IS TEST
+//            UpsAmazon.UShippingResponse.Builder response = UpsAmazon.UShippingResponse.newBuilder();
+//            response.setTruckId(1).setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());
+//
+//            // Send Msg to Amazon
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            this.amazonCommunicator.sendMsg(response.build(), 1);
+//
+//
+//            // Send a UGoPickup to World
+//            WorldUps.UGoPickup.Builder uGoPickup = WorldUps.UGoPickup.newBuilder();
+//            uGoPickup.setTruckid(1);
+//            uGoPickup.setWhid(1);
+//            uGoPickup.setSeqnum(3);
+//
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//            this.worldCommunicator.sendMsg(uGoPickup.build(), 1);
+
+            // TODO THIS IS TEST
 
             // Add to responseACKList for response ACKs
             responseACKList.add(aShippingRequest.getSeqnum());

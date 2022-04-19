@@ -3,6 +3,8 @@
  */
 package edu.duke.ece568;
 
+import edu.duke.ece568.communication.amazon.AmazonCommunicator;
+import edu.duke.ece568.communication.world.WorldCommunicator;
 import edu.duke.ece568.utils.AmazonConnector;
 import edu.duke.ece568.utils.WorldConnect;
 
@@ -12,9 +14,13 @@ public class App {
     final String WORLD_HOST = "207.246.90.49";
     final int WORLD_PORT = 12345;
     final int AMAZON_PORT = 11111;
-    private static long seqnum=0;
+
     private WorldConnect worldConnector;
+    private WorldCommunicator worldCommunicator;
     private AmazonConnector amazonConnector;
+    private AmazonCommunicator amazonCommunicator;
+
+
     public App(){//TODO pass hosts and ports info
 
     }
@@ -24,28 +30,34 @@ public class App {
      * @throws IOException
      */
     public void setup() throws IOException {
-        //TODO refactor to multiple thread
+        // Setup World Connection
         worldConnector = new WorldConnect(WORLD_HOST, WORLD_PORT);
         worldConnector.setupConnection();
-//        amazonThread = new AmazonThread(AMAZON_PORT, worldConnector.getWorldid());
-//        amazonThread.run();
-        //start amazon thread
-        //amazonConnector = new AmazonConnector(worldConnector.getWorldid());
-        //amazonConnector.connectAmazon_socket();
 
+        // Setup Amazon Connection
+        amazonConnector = new AmazonConnector(AMAZON_PORT, worldConnector.getWorldid());
+        amazonConnector.connectAmazon_socket();
+
+        // Send worldID to Amazon
+        amazonConnector.processWorldMsg();
+
+        // Setup Amazon Communicator Thread
+        amazonCommunicator =  new AmazonCommunicator(amazonConnector.getAmazon_socket());
+        worldCommunicator = new WorldCommunicator(worldConnector.getWorld_socket(), amazonCommunicator);
+        amazonCommunicator.setWorldCommunicator(worldCommunicator);
     }
 
     public void run(){
-        //Run Amazon Listener/World Listener/Front end Listener
+        // Run AmazonCommunicator threads
+        amazonCommunicator.runThreads();
+
+        // Run WorldCommunicator threads
+        worldCommunicator.runThreads();
+
+        // inf loops
+        while (true){}
     }
 
-    /**
-     * Gets and increment the seqnum
-     * @return the requested sequence number
-     */
-    public static synchronized long getSeqnum(){
-        return seqnum++;
-    }
 
     public static void main(String[] args) throws IOException {
         App app = new App();
