@@ -4,7 +4,6 @@
 package edu.duke.ece568;
 
 import edu.duke.ece568.utils.AmazonConnector;
-import edu.duke.ece568.utils.AmazonThread;
 import edu.duke.ece568.utils.WorldConnect;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ public class App {
     private static long seqnum=0;
     private WorldConnect worldConnector;
     private AmazonConnector amazonConnector;
-    private AmazonThread amazonThread;
     public App(){//TODO pass hosts and ports info
 
     }
@@ -29,8 +27,8 @@ public class App {
         //TODO refactor to multiple thread
         worldConnector = new WorldConnect(WORLD_HOST, WORLD_PORT);
         worldConnector.setupConnection();
-        amazonThread = new AmazonThread(AMAZON_PORT, worldConnector.getWorldid());
-        amazonThread.run();
+//        amazonThread = new AmazonThread(AMAZON_PORT, worldConnector.getWorldid());
+//        amazonThread.run();
         //start amazon thread
         //amazonConnector = new AmazonConnector(worldConnector.getWorldid());
         //amazonConnector.connectAmazon_socket();

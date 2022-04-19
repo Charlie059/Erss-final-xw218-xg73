@@ -2,10 +2,7 @@ package edu.duke.ece568.database;
 
 import edu.duke.ece568.utils.Logger;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class PostgreSQLJDBC {
     private static PostgreSQLJDBC postgreSQLJDBC;
@@ -62,7 +59,7 @@ public class PostgreSQLJDBC {
      * @param sql String
      * @return true for success exe
      */
-    private boolean runSQLUpdate(String sql){
+    public boolean runSQLUpdate(String sql){
         Statement statement;
         try {
             Connection c = connectDB();
@@ -79,6 +76,27 @@ public class PostgreSQLJDBC {
             Logger logger = Logger.getSingleton();
             logger.write(e.getMessage());
             return false;
+        }
+    }
+
+
+    public ResultSet runSQLSelect(String sql){
+        Statement statement;
+        try {
+            Connection c = connectDB();
+
+            //Assert connect to db
+            //assert c != null;
+
+            statement = c.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+            statement.close();
+            c.close();
+            return result;
+        } catch (SQLException e) {
+            Logger logger = Logger.getSingleton();
+            logger.write(e.getMessage());
+            return null;
         }
     }
 
