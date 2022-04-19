@@ -52,6 +52,13 @@ class Package(models.Model):
                                 null=True)  # Truck.packages
 
 
+# Create item
+class Item(models.Model):
+    ItemName = models.CharField(max_length=100)
+    Count = models.IntegerField()
+    PackageID = models.ForeignKey(Package, related_name='items', on_delete=models.CASCADE)
+
+
 # Create Truck
 class Truck(models.Model):
     TruckID = models.BigIntegerField(primary_key=True)  # required int64 TruckID

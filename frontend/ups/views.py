@@ -1,6 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.views.generic import DetailView
 
+from ups.forms import SearchPackageForm
+from ups.models import Package
 
 posts = [
     {
@@ -23,3 +28,15 @@ def home(request):
         'posts': posts
     }
     return render(request, 'ups/home.html', context)
+
+
+def packageSearch(request):
+    data = []
+    form = SearchPackageForm(request.POST)
+    if request.method == 'POST':
+        if form.is_valid():
+            packageID = form.cleaned_data.get('packageID')
+            data = Package.objects.filter(Q(PackageID=packageID))
+
+    return render(request, 'ups/packageSearch.html', {'form': form, "data": data})
+
