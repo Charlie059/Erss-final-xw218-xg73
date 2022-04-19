@@ -64,6 +64,7 @@ class Truck(models.Model):
     TruckID = models.BigIntegerField(primary_key=True)  # required int64 TruckID
     x = models.BigIntegerField()  # required int64 x
     y = models.BigIntegerField()  # required int64 y
+    Available = models.BooleanField(default=True)
 
     # Truck status:
     # 1. Idle: Finish all CMD
