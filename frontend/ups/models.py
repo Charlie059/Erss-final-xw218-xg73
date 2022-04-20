@@ -23,7 +23,7 @@ class Ticket(models.Model):
 
 # Create Package
 class Package(models.Model):
-    PackageID = models.BigIntegerField(primary_key=True)  # required int64 PackageID
+    PackageID = models.BigAutoField(primary_key=True)  # required int64 PackageID
     # When Amazon send Package info, we only have EmailAddress, once user resistor with this address, we add into user
     Owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None)  # ForeignKey User
     x = models.BigIntegerField()  # required int64 x
@@ -61,7 +61,7 @@ class Item(models.Model):
 
 # Create Truck
 class Truck(models.Model):
-    TruckID = models.BigIntegerField(primary_key=True)  # required int64 TruckID
+    TruckID = models.BigAutoField(primary_key=True)  # required int64 TruckID
     x = models.BigIntegerField()  # required int64 x
     y = models.BigIntegerField()  # required int64 y
     Available = models.BooleanField(default=True)
