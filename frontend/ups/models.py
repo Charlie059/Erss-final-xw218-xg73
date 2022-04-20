@@ -20,6 +20,27 @@ class Ticket(models.Model):
     PickupWareHouseID = models.ForeignKey(AWareHouse, on_delete=models.CASCADE)
     beginProcess = models.BooleanField(default=False)
 
+# Create Truck
+class Truck(models.Model):
+    TruckID = models.BigAutoField(primary_key=True)  # required int64 TruckID
+    x = models.BigIntegerField()  # required int64 x
+    y = models.BigIntegerField()  # required int64 y
+    Available = models.BooleanField(default=True)
+
+    # Truck status:
+    # 1. Idle: Finish all CMD
+    # 2. Traveling: Traveling to warehouse
+    # 3. ArriveWarehouse: Finish loading or Arrived warehouse
+    # 4. Loading: Loading goods from warehouse
+    # 5. Delivering: Truck is sending packages
+    status_choice = [
+        ('IDLE', 'Idle'),
+        ('TRAVELING', 'Traveling'),
+        ('ARRIVEWH', 'ArriveWarehouse'),
+        ('LOADING', 'Loading'),
+        ('DELIVERING', 'Delivering'),
+    ]
+    Status = models.CharField(max_length=100, default="IDLE", choices=status_choice)
 
 # Create Package
 class Package(models.Model):
@@ -48,7 +69,7 @@ class Package(models.Model):
     # One Ticket has many packages
     TicketID = models.ForeignKey(Ticket, related_name='ticket_packages', on_delete=models.CASCADE)  # Ticket.packages
     # One Truck has many packages
-    TruckID = models.ForeignKey(Ticket, related_name='truck_packages', on_delete=models.CASCADE,
+    TruckID = models.ForeignKey(Truck, related_name='truck_packages', on_delete=models.CASCADE,
                                 null=True)  # Truck.packages
 
 
@@ -58,28 +79,6 @@ class Item(models.Model):
     Count = models.IntegerField()
     PackageID = models.ForeignKey(Package, related_name='items', on_delete=models.CASCADE)
 
-
-# Create Truck
-class Truck(models.Model):
-    TruckID = models.BigAutoField(primary_key=True)  # required int64 TruckID
-    x = models.BigIntegerField()  # required int64 x
-    y = models.BigIntegerField()  # required int64 y
-    Available = models.BooleanField(default=True)
-
-    # Truck status:
-    # 1. Idle: Finish all CMD
-    # 2. Traveling: Traveling to warehouse
-    # 3. ArriveWarehouse: Finish loading or Arrived warehouse
-    # 4. Loading: Loading goods from warehouse
-    # 5. Delivering: Truck is sending packages
-    status_choice = [
-        ('IDLE', 'Idle'),
-        ('TRAVELING', 'Traveling'),
-        ('ARRIVEWH', 'ArriveWarehouse'),
-        ('LOADING', 'Loading'),
-        ('DELIVERING', 'Delivering'),
-    ]
-    Status = models.CharField(max_length=100, default="IDLE", choices=status_choice)
 
 
 # Create UserChangeDstRequest: When user want to change package destination request

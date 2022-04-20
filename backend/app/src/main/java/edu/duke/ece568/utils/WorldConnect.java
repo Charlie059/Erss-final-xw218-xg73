@@ -1,6 +1,7 @@
 package edu.duke.ece568.utils;
 
 
+import edu.duke.ece568.database.PostgreSQLJDBC;
 import edu.duke.ece568.proto.WorldUps;
 import java.io.IOException;
 import java.io.InputStream;
@@ -149,14 +150,21 @@ public class WorldConnect {
      * @param nums of trucks
      */
     public void init_truck(int nums) {
-        //TODO need to store in database?
-
         // Add truck to the truck list
         IntStream.range(0, nums).forEach(i -> {
             WorldUps.UInitTruck.Builder truck = WorldUps.UInitTruck.newBuilder();
             truck.setId(i + 1).setX(0).setY(0);
             this.trucks.add(truck.build());
+            //initTruckInDatabase(0, 0);
+
         });
+    }
+
+    public void initTruckInDatabase(int x, int y){
+        String insert_sql = "INSERT INTO public.ups_truck (\"TruckID\", x, y, \"Available\", \"Status\") VALUES (DEFAULT, "+ x + " ," + y + " , true, 'idle');";
+        //String insert_sql = "INSERT INTO public.ups_truck (x, y, Available, Status) VALUES ( " + x + ", " + y + ", true, 'idle');";
+        //System.out.println(insert_sql);
+        PostgreSQLJDBC.getInstance().runSQLUpdate(insert_sql);
     }
 
 }

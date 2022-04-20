@@ -1,6 +1,9 @@
 #!/bin/bash
-python3 manage.py makemigrations
-python3 manage.py migrate
+for i in {1..10}
+do
+   python3 manage.py makemigrations
+   python3 manage.py migrate
+done
 res="$?"
 while [ "$res" != "0" ]
 do

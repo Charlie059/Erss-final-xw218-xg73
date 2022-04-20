@@ -178,27 +178,18 @@ public class AmazonRecvHandler implements Runnable{
 
             // Handle the message
             // (1) Update Truck status DELIVERING
-            String update_truck = "UPDATE ups_truck SET Status = 'Delivering' WHERE TruckID " + aTruckLoadedNotification.getTruckId() + ",";
+            String update_truck = "UPDATE ups_truck SET \"Status\" = 'DELIVERING' WHERE \"TruckID\" = " + aTruckLoadedNotification.getTruckId() + ";";
             Logger.getSingleton().write(update_truck);
             PostgreSQLJDBC.getInstance().runSQLUpdate(update_truck);
 
             // (1.1) update packages status to DELI, updateTime()
-            //TODO no package id
-            // Find Packages of the current truck
-            String package_query = "SELECT PackageID x, yROM ups_package WHERE truck_id = " + aTruckLoadedNotification.getTruckId() + ";";
-            ResultSet rs = PostgreSQLJDBC.getInstance().runSQLSelect(package_query);
-            Array packages = rs.getArray(0);
-            Array x = rs.getArray(1);
-            Array y = rs.getArray(2);
-            ArrayList<Integer> packages_id = (ArrayList<Integer>) packages.getArray();
-            ArrayList<Integer> xs = (ArrayList<Integer>) x.getArray();
-            ArrayList<Integer> ys = (ArrayList<Integer>) y.getArray();
-            ArrayList<WorldUps.UDeliveryLocation> locations  = new ArrayList<>();
-            for(int i=0; i<packages_id.size(); i++){
-                locations.add(worldMsgFactory.generateUDeliveryLocation(packages_id.get(i), xs.get(i), ys.get(i)));
-            }
-            String update_package = "UPDATE ups_package SET Status = 'delivering', UpdateTime = " + TimeGetter.getCurrTime() + " WHERE TruckID_id = " + aTruckLoadedNotification.getTruckId() + ";";
+            String update_package = "UPDATE ups_package SET \"Status\" = 'DELI', \"UpdateTime\" = '" + TimeGetter.getCurrTime() + "' WHERE \"TruckID_id\" = " + aTruckLoadedNotification.getTruckId() + ";";
             PostgreSQLJDBC.getInstance().runSQLUpdate(update_package);
+
+            // Find Packages of the current truck
+            String package_query = "SELECT \"PackageID\", x, y FROM ups_package WHERE \"TruckID_id\" = " + aTruckLoadedNotification.getTruckId() + ";";
+            System.out.println(package_query);
+            ArrayList<WorldUps.UDeliveryLocation> locations = PostgreSQLJDBC.getInstance().selectPackages(package_query);
             // (2) TODO Send UGODeliver CMD to World by using WorldCommunicator
             //2.1
             WorldUps.UGoDeliver uGoDeliver = worldMsgFactory.generateUGoDeliver((int) aTruckLoadedNotification.getTruckId(), locations, SeqNumGenerator.getInstance().getCurrent_id());
@@ -206,8 +197,8 @@ public class AmazonRecvHandler implements Runnable{
 
             //TODO send package status update UShipmentStatusUpdate
             ArrayList<UpsAmazon.AUShipmentUpdate> updates = new ArrayList<>();
-            for(int i=0; i<packages_id.size(); i++){
-                updates.add(auMsgFactory.generateAUShipmentUpdate(packages_id.get(i), "Delivering"));
+            for(int i=0; i<locations.size(); i++){
+                updates.add(auMsgFactory.generateAUShipmentUpdate(locations.get(i).getPackageid(), "Delivering"));
             }
             UpsAmazon.UShipmentStatusUpdate uShipmentStatusUpdate = auMsgFactory.generateUShipmentStatusUpdates(updates, SeqNumGenerator.getInstance().getCurrent_id());
             this.amazonCommunicator.sendMsg(uShipmentStatusUpdate, 3);
@@ -225,22 +216,35 @@ public class AmazonRecvHandler implements Runnable{
      */
     private void handleAShippingRequest(ArrayList<Long> responseACKList, List<UpsAmazon.AShippingRequest> shippingRequestList) throws SQLException {
         for (UpsAmazon.AShippingRequest aShippingRequest : shippingRequestList) {
+            System.out.println("Dealing with Shipping Request;");
             // If that seqNum has been handled before, continue
             if(this.handledSet.contains(aShippingRequest.getSeqnum())) continue;
 
             // Handle the message
             // (1) Insert the Warehouse Info in DB (If not exist in DB)
+            String insert_warehouse = "INSERT INTO public.ups_awarehouse VALUES (" + aShippingRequest.getLocation().getWarehouseid() + ", "+ aShippingRequest.getLocation().getX() + ", " + aShippingRequest.getLocation().getY() + ");";
+            System.out.println(insert_warehouse);
+            PostgreSQLJDBC.getInstance().runSQLUpdate(insert_warehouse);
             // (2) Assign a new Ticket in DB with WarehouseID, and set beginProcess to true
+            String assign_ticket = "INSERT INTO public.ups_ticket VALUES (Default, true, " + aShippingRequest.getLocation().getWarehouseid() +") RETURNING \"id\";";
+            System.out.println(assign_ticket);
+            int ticket_id = PostgreSQLJDBC.getInstance().assignTicket(assign_ticket);
             // (3) Find one IDLE truck (What if no IDLE truck? -> Create 1000 trucks) and get it truckID and setTruck status to TRAVELING
-            String truck_query = "SELECT * FROM ups_truck WHERE Status= idle FETCh FIRST ROW ONLY;";
-            ResultSet rs= PostgreSQLJDBC.getInstance().runSQLSelect(truck_query);//TODO database concurrency
-            int truck_id = rs.getInt("TruckID");
-            String truck_update = "UPDATE ups_truck SET Status = 'traveling' WHERE TruckID = " + truck_id + ";";
+            String truck_query = "SELECT * FROM ups_truck WHERE \"Status\" = 'idle' AND \"Available\" = true FETCH FIRST ROW ONLY;";
+            //ResultSet rs= PostgreSQLJDBC.getInstance().runSQLSelect(truck_query);//TODO database concurrency
+            //TODO if no truck found, return err msg
+            int truck_id = PostgreSQLJDBC.getInstance().selectIdleTruck(truck_query);
+            if(truck_id==-1){
+                String err = "Cannot assign truck for seq num " + aShippingRequest.getSeqnum();
+                System.out.println(err);
+                return;
+            }
+            String truck_update = "UPDATE ups_truck SET \"Status\" = 'traveling' WHERE \"TruckID\" = " + truck_id + ";";
             PostgreSQLJDBC.getInstance().runSQLUpdate(truck_update);
             // (4) Based on the list of AShipment(packageID, x, y, emailAddress), create a list of UPS_Package
             // Status = PROC, CreateTime and UpdateTime, Owner_id = null, TicketId = (2)'s ticket_id ,TruckID = (3).truckID
             for(UpsAmazon.AShipment aShipment: aShippingRequest.getShipmentList()){
-                String insert_package = "INSERT (x, y, EmailAddress, Status, CreateTime, UpdateTime, TruckId) INTO ups_package VALUES (" + aShipment.getDestX() + " " + aShipment.getDestY() + " '" + TimeGetter.getCurrTime() + "' " + TimeGetter.getCurrTime() + "' " + truck_id + ";";
+                String insert_package = "INSERT INTO public.ups_package (\"PackageID\", x, y, \"EmailAddress\", \"Status\", \"CreateTime\", \"UpdateTime\", \"TruckID_id\", \"TicketID_id\" ) VALUES (DEFAULT, " + aShipment.getDestX() + ", " + aShipment.getDestY() + ", '"+aShipment.getEmailaddress()+ "', 'PROC', '" + TimeGetter.getCurrTime() + "', '" + TimeGetter.getCurrTime() + "', " + truck_id + ", " + ticket_id +" );";
                 PostgreSQLJDBC.getInstance().runSQLUpdate(insert_package);
             }
             // (7) TODO first Generate UShippingResponse CMD and wrap it to auResponse to Amazon
@@ -249,9 +253,8 @@ public class AmazonRecvHandler implements Runnable{
                 uTrackings.add(auMsgFactory.generateUTracking(uTracking.getPackageId(), TrackNumberGenerator.getInstance().getCurrent_id()));
             }
             UpsAmazon.UShippingResponse uShippingResponse = auMsgFactory.generateUShippingResponse(uTrackings, truck_id, SeqNumGenerator.getInstance().getCurrent_id());
-            UpsAmazon.AUResponse.Builder auResponse = UpsAmazon.AUResponse.newBuilder();
-            auResponse.addShippingResponse(uShippingResponse);
-            sendMsgTo(uShippingResponse, this.out);
+            System.out.println("send to: " + uShippingResponse);
+            amazonCommunicator.sendMsg(uShippingResponse, 1);
 
             // (5) Send UGOPickUp CMD to World by using WorldCommunicator to let the trucks to arrive to warehouse
             WorldUps.UGoPickup uGoPickup = worldMsgFactory.generateUGoPickup(truck_id, aShippingRequest.getLocation().getWarehouseid(), SeqNumGenerator.getInstance().getCurrent_id());
