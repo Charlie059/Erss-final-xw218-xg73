@@ -158,9 +158,12 @@ public class AmazonRecvHandler implements Runnable{
             // Get the list of AUShipmentUpdate and update Package Status and UpdateTime
             List<UpsAmazon.AUShipmentUpdate> ids = aShipmentStatusUpdate.getAuShipmentUpdateList();
             for(int i=0; i<ids.size(); i++){
-                String update_package = "UPDATE ups_package SET Status = " + ids.get(0).getStatus() + " WHERE PackageId = " + ids.get(i).getPackageId() + ";";
+                //TODO add update time and status detail
+                String update_package = "UPDATE ups_package SET \"Status\" = " + ids.get(0).getStatus() + " WHERE \"PackageID\" = " + ids.get(i).getPackageId() + ";";
+                System.out.println(update_package);
                 PostgreSQLJDBC.getInstance().runSQLUpdate(update_package);
             }
+
             responseACKList.add(aShipmentStatusUpdate.getSeqnum());
             this.handledSet.add(aShipmentStatusUpdate.getSeqnum());
         }
@@ -190,18 +193,20 @@ public class AmazonRecvHandler implements Runnable{
             String package_query = "SELECT \"PackageID\", x, y FROM ups_package WHERE \"TruckID_id\" = " + aTruckLoadedNotification.getTruckId() + ";";
             System.out.println(package_query);
             ArrayList<WorldUps.UDeliveryLocation> locations = PostgreSQLJDBC.getInstance().selectPackages(package_query);
-            // (2) TODO Send UGODeliver CMD to World by using WorldCommunicator
-            //2.1
+            // (2)
+            //2.1 Send UGODeliver CMD to World by using WorldCommunicator
             WorldUps.UGoDeliver uGoDeliver = worldMsgFactory.generateUGoDeliver((int) aTruckLoadedNotification.getTruckId(), locations, SeqNumGenerator.getInstance().getCurrent_id());
             worldCommunicator.sendMsg(uGoDeliver, 2);
 
-            //TODO send package status update UShipmentStatusUpdate
+            //2.2 send package status update UShipmentStatusUpdate
             ArrayList<UpsAmazon.AUShipmentUpdate> updates = new ArrayList<>();
             for(int i=0; i<locations.size(); i++){
                 updates.add(auMsgFactory.generateAUShipmentUpdate(locations.get(i).getPackageid(), "Delivering"));
             }
             UpsAmazon.UShipmentStatusUpdate uShipmentStatusUpdate = auMsgFactory.generateUShipmentStatusUpdates(updates, SeqNumGenerator.getInstance().getCurrent_id());
             this.amazonCommunicator.sendMsg(uShipmentStatusUpdate, 3);
+
+            //send ack
             responseACKList.add(aTruckLoadedNotification.getSeqnum());
             this.handledSet.add(aTruckLoadedNotification.getSeqnum());
         }

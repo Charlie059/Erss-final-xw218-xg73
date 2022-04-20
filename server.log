@@ -1,71 +1,21 @@
-4月 20, 2022 6:16:26 下午 edu.duke.ece568.utils.Logger write
+4月 20, 2022 6:20:39 下午 edu.duke.ece568.utils.Logger write
 信息: WorldCommunicator: 207.246.90.49
-4月 20, 2022 6:16:31 下午 edu.duke.ece568.utils.Logger write
-信息: RECV Message from Amazon: loaded {
-  truck_id: 1
-  seqnum: 1
-}
-
-4月 20, 2022 6:16:31 下午 edu.duke.ece568.utils.Logger write
-信息: UPDATE ups_truck SET "Status" = 'DELIVERING' WHERE "TruckID" = 1;
-4月 20, 2022 6:16:31 下午 edu.duke.ece568.utils.Logger write
-信息: Send Message: 
-deliveries {
-  truckid: 1
-  packages {
-    packageid: 1
-    x: 3
-    y: 4
-  }
-  packages {
-    packageid: 2
-    x: 1
-    y: 1
-  }
-  seqnum: 2
-}
-
-4月 20, 2022 6:16:31 下午 edu.duke.ece568.utils.Logger write
-信息: Send Message: 
-shipment_status_update {
+4月 20, 2022 6:20:41 下午 edu.duke.ece568.utils.Logger write
+信息: RECV Message from Amazon: shipment_status_update {
   au_shipment_update {
     package_id: 1
-    status: "Delivering"
+    status: "Packed"
   }
   au_shipment_update {
     package_id: 2
-    status: "Delivering"
+    status: "Packed"
   }
-  seqnum: 3
+  seqnum: 1
 }
 
-4月 20, 2022 6:16:31 下午 edu.duke.ece568.utils.Logger write
-信息: RECV Message from Amazon: acks: 3
-
-4月 20, 2022 6:16:36 下午 edu.duke.ece568.utils.Logger write
-信息: Send Message: 
-deliveries {
-  truckid: 1
-  packages {
-    packageid: 1
-    x: 3
-    y: 4
-  }
-  packages {
-    packageid: 2
-    x: 1
-    y: 1
-  }
-  seqnum: 2
-}
-
-4月 20, 2022 6:16:38 下午 edu.duke.ece568.utils.Logger write
-信息: RECV Message from World: acks: 2
-error {
-  err: "package you have specified is not currently in the truck you provided!"
-  originseqnum: 2
-  seqnum: 4
-}
-
-4月 20, 2022 6:16:38 下午 edu.duke.ece568.utils.Logger write
-信息: package you have specified is not currently in the truck you provided!
+4月 20, 2022 6:20:41 下午 edu.duke.ece568.utils.Logger write
+信息: ERROR: column "packed" does not exist
+  位置：35
+4月 20, 2022 6:20:41 下午 edu.duke.ece568.utils.Logger write
+信息: ERROR: column "packed" does not exist
+  位置：35
