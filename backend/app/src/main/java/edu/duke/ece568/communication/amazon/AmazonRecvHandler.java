@@ -2,6 +2,7 @@ package edu.duke.ece568.communication.amazon;
 
 import edu.duke.ece568.communication.world.WorldCommunicator;
 import edu.duke.ece568.database.PostgreSQLJDBC;
+import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.proto.WorldUps;
 import edu.duke.ece568.utils.*;
 
@@ -107,7 +108,7 @@ public class AmazonRecvHandler implements Runnable{
         List<UpsAmazon.AShippingRequest> shippingRequestList = aRequest.getShippingRequestList();
         List<UpsAmazon.ATruckLoadedNotification> loadedNotificationList = aRequest.getLoadedList();
         List<UpsAmazon.AShipmentStatusUpdate> shipmentStatusUpdateList = aRequest.getShipmentStatusUpdateList();
-        List<UpsAmazon.APackageDetailResponse> packageDetailList = aRequest.getPackageDetailList();
+        //List<UpsAmazon.APackageDetailResponse> packageDetailList = aRequest.getPackageDetailList();
 
         // Handle AShippingRequest
         handleAShippingRequest(responseACKList, shippingRequestList);
@@ -119,7 +120,7 @@ public class AmazonRecvHandler implements Runnable{
         handleAShipmentStatusUpdate(responseACKList, shipmentStatusUpdateList);
 
         // Get the APackageDetailResponse
-        handleAPackageDetailResponse(responseACKList, packageDetailList);
+        //handleAPackageDetailResponse(responseACKList, packageDetailList);
     }
 
     /**
@@ -127,19 +128,19 @@ public class AmazonRecvHandler implements Runnable{
      * @param responseACKList
      * @param packageDetailList
      */
-    private void handleAPackageDetailResponse(ArrayList<Long> responseACKList, List<UpsAmazon.APackageDetailResponse> packageDetailList) {
-        for (UpsAmazon.APackageDetailResponse aPackageDetailResponse : packageDetailList) {
-            // If that seqNum has been handled before, continue
-            if(this.handledSet.contains(aPackageDetailResponse.getSeqnum())) continue;
-
-            // Handle the message
-            // (1) Recv a hashmap<with packageID, Package>
-            // (2) TODO Update Database to store this info, we can just print them out for now
-
-            responseACKList.add(aPackageDetailResponse.getSeqnum());
-            this.handledSet.add(aPackageDetailResponse.getSeqnum());
-        }
-    }
+//    private void handleAPackageDetailResponse(ArrayList<Long> responseACKList, List<UpsAmazon.APackageDetailResponse> packageDetailList) {
+//        for (UpsAmazon.APackageDetailResponse aPackageDetailResponse : packageDetailList) {
+//            // If that seqNum has been handled before, continue
+//            if(this.handledSet.contains(aPackageDetailResponse.getSeqnum())) continue;
+//
+//            // Handle the message
+//            // (1) Recv a hashmap<with packageID, Package>
+//            // (2) TODO Update Database to store this info, we can just print them out for now
+//
+//            responseACKList.add(aPackageDetailResponse.getSeqnum());
+//            this.handledSet.add(aPackageDetailResponse.getSeqnum());
+//        }
+//    }
 
     /**
      * Handle AShipmentStatusUpdate msg
@@ -253,7 +254,10 @@ public class AmazonRecvHandler implements Runnable{
             // Status = PROC, CreateTime and UpdateTime, Owner_id = null, TicketId = (2)'s ticket_id ,TruckID = (3).truckID
             for(UpsAmazon.AShipment aShipment: aShippingRequest.getShipmentList()){
                 String insert_package = "INSERT INTO public.ups_package (\"PackageID\", x, y, \"EmailAddress\", \"Status\", \"CreateTime\", \"UpdateTime\", \"TruckID_id\", \"TicketID_id\" ) VALUES (DEFAULT, " + aShipment.getDestX() + ", " + aShipment.getDestY() + ", '"+aShipment.getEmailaddress()+ "', 'PROC', '" + TimeGetter.getCurrTime() + "', '" + TimeGetter.getCurrTime() + "', " + truck_id + ", " + ticket_id +" );";
+                //for(UpsAmazon.Product product : aShipment.)
+                //String insert_package_detail = "INSERT INTO public.ups_item (\"ItemId\", \"ItemName\", \"Count\", \"PackageID_id\") VALUES (DEFAULT, )"
                 PostgreSQLJDBC.getInstance().runSQLUpdate(insert_package);
+
             }
 
             // (7) TODO first Generate UShippingResponse CMD and wrap it to auResponse to Amazon
