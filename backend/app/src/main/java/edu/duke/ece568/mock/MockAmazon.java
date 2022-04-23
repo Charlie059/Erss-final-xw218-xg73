@@ -1,5 +1,6 @@
 package edu.duke.ece568.mock;
 
+import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.utils.SeqNumGenerator;
 
 import java.io.IOException;
@@ -77,13 +78,31 @@ public class MockAmazon {
         UpsAmazon.AURequest.Builder response = UpsAmazon.AURequest.newBuilder();
         switch (input){
             // Create AShippingRequest
+            //            message Product {
+            //                required string description = 1;
+            //                required int32 count = 2;
+            //            }
+            //
+            //            message AShipment {
+            //                required int64 package_id = 1;
+            //                required int64 dest_x = 2;
+            //                required int64 dest_y = 3;
+            //                required string emailaddress = 4;
+            //                repeated Product product = 5;
+            //            }
             case 1:{
                 UpsAmazon.AShippingRequest.Builder aShippingRequest = UpsAmazon.AShippingRequest.newBuilder();
                 // Add AWareHouseLocation
                 aShippingRequest.setLocation(UpsAmazon.AWareHouseLocation.newBuilder().setWarehouseid(1).setX(1).setY(1));
+
+                // Gen new product
+                UpsAmazon.Product.Builder apples = UpsAmazon.Product.newBuilder().setDescription("Apple").setCount(2);
+                UpsAmazon.Product.Builder bananas = UpsAmazon.Product.newBuilder().setDescription("Banananana").setCount(1);
+
                 // Add Shipment List
-                aShippingRequest.addShipment(UpsAmazon.AShipment.newBuilder().setPackageId(2).setDestX(3).setDestY(4).setEmailaddress("xg73@duke.edu"));
-                aShippingRequest.addShipment(UpsAmazon.AShipment.newBuilder().setPackageId(1).setDestX(1).setDestY(1).setEmailaddress("pad128g@icloud.com"));
+                aShippingRequest.addShipment(UpsAmazon.AShipment.newBuilder().setPackageId(2).setDestX(3).setDestY(4).setEmailaddress("xg73@duke.edu").addProduct(apples).addProduct(bananas));
+                aShippingRequest.addShipment(UpsAmazon.AShipment.newBuilder().setPackageId(1).setDestX(1).setDestY(1).setEmailaddress("pad128g@icloud.com").addProduct(apples));
+
                 // Gen seqNum
                 aShippingRequest.setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());
                 response.addShippingRequest(aShippingRequest);
@@ -112,16 +131,6 @@ public class MockAmazon {
                 break;
             }
 
-            // Create APackageDetailResponse
-            case 4:{
-                UpsAmazon.APackageDetailResponse.Builder uPackDetail = UpsAmazon.APackageDetailResponse.newBuilder();
-
-                UpsAmazon.Package.Builder uPackage = UpsAmazon.Package.newBuilder();
-                uPackage.addProduct(UpsAmazon.Product.newBuilder().setDiscription("Big Mac").setCount(2));
-                uPackDetail.putPackagemap(1, uPackage.build()).setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());
-                response.addPackageDetail(uPackDetail);
-                break;
-            }
         }
 
         return response;
