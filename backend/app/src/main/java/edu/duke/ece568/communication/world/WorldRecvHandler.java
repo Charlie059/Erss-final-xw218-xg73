@@ -170,17 +170,8 @@ public class WorldRecvHandler implements Runnable{
             // Maybe update Truck info
             //1. Update Truck info
             String status = uTruck.getStatus();
-            String status_inDB = null;
-            if(status.equals("arrive warehouse")){
-                status_inDB = "'ARRIVEWH'";
-            }
-            if(status.equals("loading")){
-                status_inDB = "'LOADING'";
-            }
-            if(status.equals("delivering")){
-                status_inDB = "'DELIVERING'";
-            }
-            String update_truck = "UPDATE ups_truck SET x = " + uTruck.getX() + ", y = " + uTruck.getY() + ", \"Status\" = '" + status_inDB + "' WHERE \"Truck_id\" = " + uTruck.getTruckid() + ";";
+
+            String update_truck = "UPDATE ups_truck SET x = " + uTruck.getX() + ", y = " + uTruck.getY() + ", \"Status\" = '" + status + "' WHERE \"Truck_id\" = " + uTruck.getTruckid() + ";";
             Logger.getSingleton().write(update_truck);
             PostgreSQLJDBC.getInstance().runSQLUpdate(update_truck);
             responseACKList.add(uTruck.getSeqnum());
@@ -236,17 +227,12 @@ public class WorldRecvHandler implements Runnable{
             // 1. The truck is finished all delivery -> status:  idle
             // 2. The truck is arrived at warehouse -> status:  arrive warehouse //TODO
             Logger.getSingleton().write("Receive ufinished from truck x:" + uFinished.getX() + ", y: " + uFinished.getY() + ", \"Status\": " + uFinished.getStatus() + "\n");
-            String status = null;
-            if(uFinished.getStatus().equals("arrive warehouse")){
-                status = "ARRIVEWH";
-            }else{
-                status = "IDLE";
-            }
+
             // (1) if UFinished's status is idle:
             // (1.1) update Truck info: x y status
 
             //update truck location and status and write it to logger
-            String update_truck = "UPDATE ups_truck SET x = " + uFinished.getX() + ", y = " + uFinished.getY() + ", \"Status\" = '" + status + "' WHERE TruckID = " + uFinished.getTruckid() + ";";
+            String update_truck = "UPDATE ups_truck SET x = " + uFinished.getX() + ", y = " + uFinished.getY() + ", \"Status\" = '" + uFinished.getStatus() + "' WHERE \"TruckID\" = " + uFinished.getTruckid() + ";";
             Logger.getSingleton().write(update_truck);
             PostgreSQLJDBC.getInstance().runSQLUpdate(update_truck);
 
@@ -255,16 +241,19 @@ public class WorldRecvHandler implements Runnable{
             // (2.2) may update package status to Pickup and updateTime
             // (2.3) Send UTruckArrivedNotification(seqnum and truck id) to Amazon by using AmazonCommunicator
 
-            if(uFinished.getStatus().equals("arrive warehouse")){
+            if(uFinished.getStatus().equals("ARRIVE WAREHOUSE")){
                 //generate UTruckArrivedNotification response and send to Amazon
                 UpsAmazon.UTruckArrivedNotification uTruckArrivedNotification = auMsgFactory.generateUTruckArrivedNotification(uFinished.getTruckid(), SeqNumGenerator.getInstance().getCurrent_id());
                 amazonCommunicator.sendMsg(uTruckArrivedNotification, 2);
 
                 //TODO whether need to update package, since we dont know package id
             }
-            if(uFinished.getStatus().equals("idle")){
-                //TODO told Amazon???
+            if(uFinished.getStatus().equals("IDLE")){
+                String unavai_truck = "UPDATE ups_truck SET \"Available\" = false WHERE \"TruckID\" = " + uFinished.getTruckid() + ";";
+                PostgreSQLJDBC.getInstance().runSQLUpdate(unavai_truck);
             }
+
+
 
             responseACKList.add(uFinished.getSeqnum());
             this.handledSet.add(uFinished.getSeqnum());

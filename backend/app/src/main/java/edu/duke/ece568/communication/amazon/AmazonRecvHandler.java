@@ -256,7 +256,7 @@ public class AmazonRecvHandler implements Runnable{
                 String insert_package = "INSERT INTO public.ups_package (\"PackageID\", x, y, \"EmailAddress\", \"Status\", \"CreateTime\", \"UpdateTime\", \"TruckID_id\", \"TicketID_id\" ) VALUES (DEFAULT, " + aShipment.getDestX() + ", " + aShipment.getDestY() + ", '"+aShipment.getEmailaddress()+ "', 'PROC', '" + TimeGetter.getCurrTime() + "', '" + TimeGetter.getCurrTime() + "', " + truck_id + ", " + ticket_id +" );";
                 PostgreSQLJDBC.getInstance().runSQLUpdate(insert_package);
                 for(UpsAmazon.Product product : aShipment.getProductList()){
-                    String insert_package_detail = "INSERT INTO public.ups_item (\"ItemId\", \"ItemName\", \"Count\", \"PackageID_id\") VALUES (DEFAULT, )'" + product.getDescription() + "', " + product.getCount() + ", " + aShipment.getPackageId() + ";";
+                    String insert_package_detail = "INSERT INTO public.ups_item (\"id\", \"ItemName\", \"Count\", \"PackageID_id\") VALUES (DEFAULT, '" + product.getDescription() + "', " + product.getCount() + ", " + aShipment.getPackageId() + ");";
                     PostgreSQLJDBC.getInstance().runSQLUpdate(insert_package_detail);
                 }
 

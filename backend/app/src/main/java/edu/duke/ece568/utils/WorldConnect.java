@@ -155,7 +155,7 @@ public class WorldConnect {
             WorldUps.UInitTruck.Builder truck = WorldUps.UInitTruck.newBuilder();
             truck.setId(i + 1).setX(0).setY(0);
             this.trucks.add(truck.build());
-            //initTruckInDatabase(0, 0);
+            initTruckInDatabase(0, 0);
 
         });
     }
