@@ -1,5 +1,7 @@
 package edu.duke.ece568.mock;
 
+import edu.duke.ece568.proto.UpsAmazon;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,7 +54,7 @@ public class MockAmazonRecvHandler implements Runnable{
         List<UpsAmazon.UShippingResponse> shippingResponseList = aRequest.getShippingResponseList();
         List<UpsAmazon.UTruckArrivedNotification> truckArrivedNotificationList = aRequest.getArrivedList();
         List<UpsAmazon.UShipmentStatusUpdate> shipmentStatusUpdateList = aRequest.getShipmentStatusUpdateList();
-        List<UpsAmazon.UPackageDetailRequest> packageDetailList = aRequest.getPackageDetailList();
+        //List<UpsAmazon.UPackageDetailRequest> packageDetailList = aRequest.getPackageDetailList();
 
         // Handle UShippingResponse
         for (UpsAmazon.UShippingResponse aPackageDetailResponse : shippingResponseList) {
@@ -67,9 +69,9 @@ public class MockAmazonRecvHandler implements Runnable{
             responseACKList.add(uShipmentStatusUpdate.getSeqnum());
         }
 
-        for (UpsAmazon.UPackageDetailRequest uPackageDetailRequest : packageDetailList) {
-            responseACKList.add(uPackageDetailRequest.getSeqnum());
-        }
+//        for (UpsAmazon.UPackageDetailRequest uPackageDetailRequest : packageDetailList) {
+//            responseACKList.add(uPackageDetailRequest.getSeqnum());
+//        }
 
     }
 }

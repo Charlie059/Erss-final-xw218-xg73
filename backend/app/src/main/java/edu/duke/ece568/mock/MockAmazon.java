@@ -1,5 +1,6 @@
 package edu.duke.ece568.mock;
 
+import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.utils.SeqNumGenerator;
 
 import java.io.IOException;
@@ -113,15 +114,15 @@ public class MockAmazon {
             }
 
             // Create APackageDetailResponse
-            case 4:{
-                UpsAmazon.APackageDetailResponse.Builder uPackDetail = UpsAmazon.APackageDetailResponse.newBuilder();
-
-                UpsAmazon.Package.Builder uPackage = UpsAmazon.Package.newBuilder();
-                uPackage.addProduct(UpsAmazon.Product.newBuilder().setDiscription("Big Mac").setCount(2));
-                uPackDetail.putPackagemap(1, uPackage.build()).setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());
-                response.addPackageDetail(uPackDetail);
-                break;
-            }
+//            case 4:{
+//                UpsAmazon.APackageDetailResponse.Builder uPackDetail = UpsAmazon.APackageDetailResponse.newBuilder();
+//
+//                UpsAmazon.Package.Builder uPackage = UpsAmazon.Package.newBuilder();
+//                uPackage.addProduct(UpsAmazon.Product.newBuilder().setDiscription("Big Mac").setCount(2));
+//                uPackDetail.putPackagemap(1, uPackage.build()).setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());
+//                response.addPackageDetail(uPackDetail);
+//                break;
+//            }
         }
 
         return response;

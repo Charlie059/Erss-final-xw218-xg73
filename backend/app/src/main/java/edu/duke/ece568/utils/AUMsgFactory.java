@@ -1,5 +1,7 @@
 package edu.duke.ece568.utils;
 
+import edu.duke.ece568.proto.UpsAmazon;
+
 import java.util.ArrayList;
 
 public class AUMsgFactory {
@@ -39,7 +41,7 @@ public class AUMsgFactory {
     public UpsAmazon.UTracking generateUTracking(long packagdid, long trackingnum){
         UpsAmazon.UTracking.Builder uTracking = UpsAmazon.UTracking.newBuilder();
         uTracking.setPackageId(packagdid);
-        uTracking.setTrackingNumber(trackingnum);
+        uTracking.setTrackingNumber(""+trackingnum);
         return uTracking.build();
     }
 

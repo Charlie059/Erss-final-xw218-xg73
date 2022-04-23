@@ -2,6 +2,7 @@ package edu.duke.ece568.communication.amazon;
 
 import edu.duke.ece568.communication.world.WorldCommunicator;
 import edu.duke.ece568.database.PostgreSQLJDBC;
+import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.proto.WorldUps;
 import edu.duke.ece568.utils.*;
 
@@ -107,7 +108,7 @@ public class AmazonRecvHandler implements Runnable{
         List<UpsAmazon.AShippingRequest> shippingRequestList = aRequest.getShippingRequestList();
         List<UpsAmazon.ATruckLoadedNotification> loadedNotificationList = aRequest.getLoadedList();
         List<UpsAmazon.AShipmentStatusUpdate> shipmentStatusUpdateList = aRequest.getShipmentStatusUpdateList();
-        List<UpsAmazon.APackageDetailResponse> packageDetailList = aRequest.getPackageDetailList();
+        //List<UpsAmazon.APackageDetailResponse> packageDetailList = aRequest.getPackageDetailList();
 
         // Handle AShippingRequest
         handleAShippingRequest(responseACKList, shippingRequestList);
@@ -119,7 +120,7 @@ public class AmazonRecvHandler implements Runnable{
         handleAShipmentStatusUpdate(responseACKList, shipmentStatusUpdateList);
 
         // Get the APackageDetailResponse
-        handleAPackageDetailResponse(responseACKList, packageDetailList);
+        //handleAPackageDetailResponse(responseACKList, packageDetailList);
     }
 
     /**
@@ -127,19 +128,19 @@ public class AmazonRecvHandler implements Runnable{
      * @param responseACKList
      * @param packageDetailList
      */
-    private void handleAPackageDetailResponse(ArrayList<Long> responseACKList, List<UpsAmazon.APackageDetailResponse> packageDetailList) {
-        for (UpsAmazon.APackageDetailResponse aPackageDetailResponse : packageDetailList) {
-            // If that seqNum has been handled before, continue
-            if(this.handledSet.contains(aPackageDetailResponse.getSeqnum())) continue;
-
-            // Handle the message
-            // (1) Recv a hashmap<with packageID, Package>
-            // (2) TODO Update Database to store this info, we can just print them out for now
-
-            responseACKList.add(aPackageDetailResponse.getSeqnum());
-            this.handledSet.add(aPackageDetailResponse.getSeqnum());
-        }
-    }
+//    private void handleAPackageDetailResponse(ArrayList<Long> responseACKList, List<UpsAmazon.APackageDetailResponse> packageDetailList) {
+//        for (UpsAmazon.APackageDetailResponse aPackageDetailResponse : packageDetailList) {
+//            // If that seqNum has been handled before, continue
+//            if(this.handledSet.contains(aPackageDetailResponse.getSeqnum())) continue;
+//
+//            // Handle the message
+//            // (1) Recv a hashmap<with packageID, Package>
+//            // (2) TODO Update Database to store this info, we can just print them out for now
+//
+//            responseACKList.add(aPackageDetailResponse.getSeqnum());
+//            this.handledSet.add(aPackageDetailResponse.getSeqnum());
+//        }
+//    }
 
     /**
      * Handle AShipmentStatusUpdate msg

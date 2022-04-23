@@ -1,5 +1,7 @@
 package edu.duke.ece568.communication.amazon;
 
+import edu.duke.ece568.proto.UpsAmazon;
+
 import java.util.ArrayList;
 import java.util.Queue;
 
@@ -88,9 +90,9 @@ public class AmazonResendHandler implements Runnable {
             case 3:
                 seqNum = ((UpsAmazon.UShipmentStatusUpdate) msg.get(1)).getSeqnum();
                 break;
-            case 4:
-                seqNum = ((UpsAmazon.UPackageDetailRequest) msg.get(1)).getSeqnum();
-                break;
+//            case 4:
+//                seqNum = ((UpsAmazon.UPackageDetailRequest) msg.get(1)).getSeqnum();
+//                break;
             default:
                 seqNum = -1L;
         }

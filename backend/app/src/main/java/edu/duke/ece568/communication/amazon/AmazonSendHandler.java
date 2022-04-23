@@ -1,5 +1,6 @@
 package edu.duke.ece568.communication.amazon;
 
+import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.utils.Logger;
 import edu.duke.ece568.utils.TimeLimitedCodeBlock;
 
@@ -132,9 +133,9 @@ public class AmazonSendHandler implements Runnable{
             case 3:
                 uCommand.addShipmentStatusUpdate((UpsAmazon.UShipmentStatusUpdate) msg);
                 break;
-            case 4:
-                uCommand.addPackageDetail((UpsAmazon.UPackageDetailRequest) msg);
-                break;
+//            case 4:
+//                uCommand.addPackageDetail((UpsAmazon.UPackageDetailRequest) msg);
+//                break;
         }
     }
 }
