@@ -1,6 +1,5 @@
 package edu.duke.ece568.communication.amazon;
 
-import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.utils.Logger;
 import edu.duke.ece568.utils.TimeLimitedCodeBlock;
 
