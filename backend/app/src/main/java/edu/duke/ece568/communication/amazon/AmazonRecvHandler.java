@@ -256,7 +256,10 @@ public class AmazonRecvHandler implements Runnable{
             // Status = PROC, CreateTime and UpdateTime, Owner_id = null, TicketId = (2)'s ticket_id ,TruckID = (3).truckID
             for(UpsAmazon.AShipment aShipment: aShippingRequest.getShipmentList()){
                 String insert_package = "INSERT INTO public.ups_package (\"PackageID\", x, y, \"EmailAddress\", \"Status\", \"CreateTime\", \"UpdateTime\", \"TruckID_id\", \"TicketID_id\" ) VALUES (DEFAULT, " + aShipment.getDestX() + ", " + aShipment.getDestY() + ", '"+aShipment.getEmailaddress()+ "', 'PROC', '" + TimeGetter.getCurrTime() + "', '" + TimeGetter.getCurrTime() + "', " + truck_id + ", " + ticket_id +" );";
+                //for(UpsAmazon.Product product : aShipment.)
+                //String insert_package_detail = "INSERT INTO public.ups_item (\"ItemId\", \"ItemName\", \"Count\", \"PackageID_id\") VALUES (DEFAULT, )"
                 PostgreSQLJDBC.getInstance().runSQLUpdate(insert_package);
+
             }
 
             // (7) TODO first Generate UShippingResponse CMD and wrap it to auResponse to Amazon

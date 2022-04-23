@@ -43,6 +43,7 @@ message UShippingResponse {
     repeated UTracking u_tracking = 2;
     required int64 seqnum = 3;
 }
+
 message UTruckArrivedNotification {
     required int64 truck_id = 1;
     required int64 seqnum = 2;
