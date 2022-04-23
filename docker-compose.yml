@@ -1,4 +1,4 @@
-version: "3.3"
+version: "2"
 services:
   database:
     image: "postgres:13-alpine3.15"
@@ -10,8 +10,6 @@ services:
       PGDATA: /var/lib/postgresql/data/dbdata/
     env_file:
       - .env
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres" ]
 
   web-init:
     build: ./frontend
@@ -41,10 +39,12 @@ services:
     depends_on:
       - web
 
-  run:
-    build: ./backend
-    depends_on:
-      - database
-      - web
-    ports:
-      - "12345:12345"
+#  run:
+#    build: ./backend
+#    depends_on:
+#      - database
+#      - web
+#      - web-init
+
+#      ports:
+#      - "12345:12345"

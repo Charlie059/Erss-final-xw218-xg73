@@ -1,17 +1,19 @@
 package edu.duke.ece568.communication.world;
 
 import edu.duke.ece568.communication.amazon.AmazonCommunicator;
+import edu.duke.ece568.database.PostgreSQLJDBC;
+import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.proto.WorldUps;
+import edu.duke.ece568.utils.AUMsgFactory;
 import edu.duke.ece568.utils.Logger;
+import edu.duke.ece568.utils.SeqNumGenerator;
+import edu.duke.ece568.utils.TimeGetter;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 import static edu.duke.ece568.utils.GPBHelper.recvMsgFrom;
 import static edu.duke.ece568.utils.GPBHelper.sendMsgTo;
@@ -23,7 +25,7 @@ public class WorldRecvHandler implements Runnable{
     private WorldCommunicator worldCommunicator;
     private InputStream in;
     private OutputStream out;
-
+    private AUMsgFactory auMsgFactory;
     // Recv queue
     private volatile Queue<Long> recvQueue;
     private HashSet<Long> handledSet; // record all seqNum which has handled before
@@ -40,6 +42,7 @@ public class WorldRecvHandler implements Runnable{
         this.amazonCommunicator = amazonCommunicator;
         this.recvQueue = recvQueue;
         this.handledSet = new HashSet<>();
+        this.auMsgFactory = new AUMsgFactory();
 
         // Get in and output stream
         try {
@@ -123,6 +126,12 @@ public class WorldRecvHandler implements Runnable{
      * Handle UErr msg
      * @param responseACKList
      * @param errorList
+     *
+     * message UErr{
+     *   required string err = 1;
+     *   required int64 originseqnum = 2;
+     *   required int64 seqnum = 3;
+     * }
      */
     private void handleUErr(ArrayList<Long> responseACKList, List<WorldUps.UErr> errorList) {
         for (WorldUps.UErr uErr : errorList) {
@@ -131,16 +140,26 @@ public class WorldRecvHandler implements Runnable{
 
             // Handle Error
             // Log the err String
-
+            //TODO exact implementation?
+            System.out.println(uErr.getErr());
+            Logger.getSingleton().write(uErr.getErr());
             responseACKList.add(uErr.getSeqnum());
             this.handledSet.add(uErr.getSeqnum());
         }
     }
 
     /**
-     * Handle Utrack info
+     * Handle Utrack info(truck x, truck y, truck id, truck status)
      * @param responseACKList
      * @param truckstatusList
+     *
+     * message UTruck{
+     *   required int32 truckid =1;
+     *   required string status = 2;
+     *   required int32 x = 3;
+     *   required int32 y = 4;
+     *   required int64 seqnum = 5;
+     * }
      */
     private void handleUTruck(ArrayList<Long> responseACKList, List<WorldUps.UTruck> truckstatusList) {
         for (WorldUps.UTruck uTruck : truckstatusList) {
@@ -149,7 +168,21 @@ public class WorldRecvHandler implements Runnable{
 
             // Handle the message
             // Maybe update Truck info
-
+            //1. Update Truck info
+            String status = uTruck.getStatus();
+            String status_inDB = null;
+            if(status.equals("arrive warehouse")){
+                status_inDB = "'ARRIVEWH'";
+            }
+            if(status.equals("loading")){
+                status_inDB = "'LOADING'";
+            }
+            if(status.equals("delivering")){
+                status_inDB = "'DELIVERING'";
+            }
+            String update_truck = "UPDATE ups_truck SET x = " + uTruck.getX() + ", y = " + uTruck.getY() + ", \"Status\" = '" + status_inDB + "' WHERE \"Truck_id\" = " + uTruck.getTruckid() + ";";
+            Logger.getSingleton().write(update_truck);
+            PostgreSQLJDBC.getInstance().runSQLUpdate(update_truck);
             responseACKList.add(uTruck.getSeqnum());
             this.handledSet.add(uTruck.getSeqnum());
         }
@@ -159,6 +192,12 @@ public class WorldRecvHandler implements Runnable{
      * Handle UDeliveryMade msg
      * @param responseACKList
      * @param deliveredList
+     *
+     * message UDeliveryMade{
+     *   required int32 truckid = 1;
+     *   required int64 packageid = 2;
+     *   required int64 seqnum = 3;
+     * }
      */
     private void handleUDeliveryMade(ArrayList<Long> responseACKList, List<WorldUps.UDeliveryMade> deliveredList) {
         for (WorldUps.UDeliveryMade uDeliveryMade : deliveredList) {
@@ -167,7 +206,15 @@ public class WorldRecvHandler implements Runnable{
 
             // Handle the message
             // (1) Update packageInfo: status to Delivered, UpdateTime
+            String update_package = "UPDATE ups_package SET \"Status\" = 'DELD', \"UpdateTime\" = '"  + TimeGetter.getCurrTime() + "' WHERE \"PackageID\" = " + uDeliveryMade.getPackageid() + "; ";
+            Logger.getSingleton().write(update_package);
+            PostgreSQLJDBC.getInstance().runSQLUpdate(update_package);
+
             // (2) Send a UShipmentStatusUpdate to Amazon by using AmazonCommunicator
+            UpsAmazon.AUShipmentUpdate auShipmentUpdate = auMsgFactory.generateAUShipmentUpdate(uDeliveryMade.getPackageid(), "Delivered");//package id and status
+            UpsAmazon.UShipmentStatusUpdate uShipmentStatusUpdate = auMsgFactory.generateUShipmentStatusUpdate(auShipmentUpdate, SeqNumGenerator.getInstance().getCurrent_id());
+            amazonCommunicator.sendMsg(uShipmentStatusUpdate, 3);
+
 
             responseACKList.add(uDeliveryMade.getSeqnum());
             this.handledSet.add(uDeliveryMade.getSeqnum());
@@ -187,16 +234,37 @@ public class WorldRecvHandler implements Runnable{
             // Handle the message
             // Two possible situations here:
             // 1. The truck is finished all delivery -> status:  idle
-            // 2. The truck is arrived at warehouse -> status:  arrive warehouse
-
+            // 2. The truck is arrived at warehouse -> status:  arrive warehouse //TODO
+            Logger.getSingleton().write("Receive ufinished from truck x:" + uFinished.getX() + ", y: " + uFinished.getY() + ", \"Status\": " + uFinished.getStatus() + "\n");
+            String status = null;
+            if(uFinished.getStatus().equals("arrive warehouse")){
+                status = "ARRIVEWH";
+            }else{
+                status = "IDLE";
+            }
             // (1) if UFinished's status is idle:
             // (1.1) update Truck info: x y status
+
+            //update truck location and status and write it to logger
+            String update_truck = "UPDATE ups_truck SET x = " + uFinished.getX() + ", y = " + uFinished.getY() + ", \"Status\" = '" + status + "' WHERE TruckID = " + uFinished.getTruckid() + ";";
+            Logger.getSingleton().write(update_truck);
+            PostgreSQLJDBC.getInstance().runSQLUpdate(update_truck);
 
             // (2) if UFinished's status is arrive warehouse:
             // (2.1) update Truck info: x y status
             // (2.2) may update package status to Pickup and updateTime
-            // (2.3) Send UTruckArrivedNotification to Amazon by using AmazonCommunicator
+            // (2.3) Send UTruckArrivedNotification(seqnum and truck id) to Amazon by using AmazonCommunicator
 
+            if(uFinished.getStatus().equals("arrive warehouse")){
+                //generate UTruckArrivedNotification response and send to Amazon
+                UpsAmazon.UTruckArrivedNotification uTruckArrivedNotification = auMsgFactory.generateUTruckArrivedNotification(uFinished.getTruckid(), SeqNumGenerator.getInstance().getCurrent_id());
+                amazonCommunicator.sendMsg(uTruckArrivedNotification, 2);
+
+                //TODO whether need to update package, since we dont know package id
+            }
+            if(uFinished.getStatus().equals("idle")){
+                //TODO told Amazon???
+            }
 
             responseACKList.add(uFinished.getSeqnum());
             this.handledSet.add(uFinished.getSeqnum());

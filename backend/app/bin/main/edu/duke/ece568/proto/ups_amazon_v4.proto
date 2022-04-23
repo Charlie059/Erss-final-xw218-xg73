@@ -8,7 +8,7 @@ message USendWorldID {
 }
 
 message AWareHouseLocation {
-    required int64 warehouseid = 1;
+    required int32 warehouseid = 1;
     required int64 x = 2;
     required int64 y = 3;
 }
@@ -28,7 +28,7 @@ message AShippingRequest {
 
 message UTracking {
     required int64 package_id = 1;
-    required string tracking_number = 2;
+    required int64 tracking_number = 2;
 }
 
 message UShippingResponse {

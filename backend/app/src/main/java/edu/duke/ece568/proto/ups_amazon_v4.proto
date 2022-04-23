@@ -8,7 +8,7 @@ message USendWorldID {
 }
 
 message AWareHouseLocation {
-    required int64 warehouseid = 1;
+    required int32 warehouseid = 1;
     required int64 x = 2;
     required int64 y = 3;
 }
@@ -49,6 +49,7 @@ message AUShipmentUpdate {
     required string status = 2;
 }
 
+// Packing, Loading
 message AShipmentStatusUpdate {
     repeated AUShipmentUpdate au_shipment_update = 1;
     required int64 seqnum = 2;

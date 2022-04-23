@@ -1,0 +1,2 @@
+4月 22, 2022 8:13:00 下午 edu.duke.ece568.utils.Logger write
+信息: UPDATE ups_truck SET x = 0, y = 0, "Status" = 'LOADING' WHERE "TruckID" = 1;
