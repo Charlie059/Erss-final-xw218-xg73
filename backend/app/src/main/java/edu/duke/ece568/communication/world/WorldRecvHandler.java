@@ -126,6 +126,12 @@ public class WorldRecvHandler implements Runnable{
      * Handle UErr msg
      * @param responseACKList
      * @param errorList
+     *
+     * message UErr{
+     *   required string err = 1;
+     *   required int64 originseqnum = 2;
+     *   required int64 seqnum = 3;
+     * }
      */
     private void handleUErr(ArrayList<Long> responseACKList, List<WorldUps.UErr> errorList) {
         for (WorldUps.UErr uErr : errorList) {
@@ -146,6 +152,14 @@ public class WorldRecvHandler implements Runnable{
      * Handle Utrack info(truck x, truck y, truck id, truck status)
      * @param responseACKList
      * @param truckstatusList
+     *
+     * message UTruck{
+     *   required int32 truckid =1;
+     *   required string status = 2;
+     *   required int32 x = 3;
+     *   required int32 y = 4;
+     *   required int64 seqnum = 5;
+     * }
      */
     private void handleUTruck(ArrayList<Long> responseACKList, List<WorldUps.UTruck> truckstatusList) {
         for (WorldUps.UTruck uTruck : truckstatusList) {
@@ -178,6 +192,12 @@ public class WorldRecvHandler implements Runnable{
      * Handle UDeliveryMade msg
      * @param responseACKList
      * @param deliveredList
+     *
+     * message UDeliveryMade{
+     *   required int32 truckid = 1;
+     *   required int64 packageid = 2;
+     *   required int64 seqnum = 3;
+     * }
      */
     private void handleUDeliveryMade(ArrayList<Long> responseACKList, List<WorldUps.UDeliveryMade> deliveredList) {
         for (WorldUps.UDeliveryMade uDeliveryMade : deliveredList) {
@@ -186,7 +206,6 @@ public class WorldRecvHandler implements Runnable{
 
             // Handle the message
             // (1) Update packageInfo: status to Delivered, UpdateTime
-
             String update_package = "UPDATE ups_package SET \"Status\" = 'DELD', \"UpdateTime\" = '"  + TimeGetter.getCurrTime() + "' WHERE \"PackageID\" = " + uDeliveryMade.getPackageid() + "; ";
             Logger.getSingleton().write(update_package);
             PostgreSQLJDBC.getInstance().runSQLUpdate(update_package);
@@ -215,7 +234,7 @@ public class WorldRecvHandler implements Runnable{
             // Handle the message
             // Two possible situations here:
             // 1. The truck is finished all delivery -> status:  idle
-            // 2. The truck is arrived at warehouse -> status:  arrive warehouse
+            // 2. The truck is arrived at warehouse -> status:  arrive warehouse //TODO
             Logger.getSingleton().write("Receive ufinished from truck x:" + uFinished.getX() + ", y: " + uFinished.getY() + ", \"Status\": " + uFinished.getStatus() + "\n");
             String status = null;
             if(uFinished.getStatus().equals("arrive warehouse")){
@@ -225,16 +244,16 @@ public class WorldRecvHandler implements Runnable{
             }
             // (1) if UFinished's status is idle:
             // (1.1) update Truck info: x y status
-            // (2) if UFinished's status is arrive warehouse:
-            // (2.1) update Truck info: x y status
-            // (2.2) may update package status to Pickup and updateTime
-
-            // (2.3) Send UTruckArrivedNotification(seqnum and truck id) to Amazon by using AmazonCommunicator
 
             //update truck location and status and write it to logger
             String update_truck = "UPDATE ups_truck SET x = " + uFinished.getX() + ", y = " + uFinished.getY() + ", \"Status\" = '" + status + "' WHERE TruckID = " + uFinished.getTruckid() + ";";
             Logger.getSingleton().write(update_truck);
             PostgreSQLJDBC.getInstance().runSQLUpdate(update_truck);
+
+            // (2) if UFinished's status is arrive warehouse:
+            // (2.1) update Truck info: x y status
+            // (2.2) may update package status to Pickup and updateTime
+            // (2.3) Send UTruckArrivedNotification(seqnum and truck id) to Amazon by using AmazonCommunicator
 
             if(uFinished.getStatus().equals("arrive warehouse")){
                 //generate UTruckArrivedNotification response and send to Amazon
