@@ -2,7 +2,6 @@ package edu.duke.ece568.communication.amazon;
 
 import edu.duke.ece568.communication.world.WorldCommunicator;
 import edu.duke.ece568.database.PostgreSQLJDBC;
-import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.proto.WorldUps;
 import edu.duke.ece568.utils.*;
 
@@ -10,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.sql.Array;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 

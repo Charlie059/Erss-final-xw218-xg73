@@ -1,7 +1,5 @@
 package edu.duke.ece568.mock;
 
-import edu.duke.ece568.proto.UpsAmazon;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

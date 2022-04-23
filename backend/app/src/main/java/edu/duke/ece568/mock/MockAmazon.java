@@ -1,6 +1,5 @@
 package edu.duke.ece568.mock;
 
-import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.utils.SeqNumGenerator;
 
 import java.io.IOException;

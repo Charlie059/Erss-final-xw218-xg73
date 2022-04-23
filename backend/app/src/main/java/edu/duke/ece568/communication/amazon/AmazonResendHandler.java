@@ -1,8 +1,5 @@
 package edu.duke.ece568.communication.amazon;
 
-import edu.duke.ece568.proto.UpsAmazon;
-import edu.duke.ece568.proto.WorldUps;
-
 import java.util.ArrayList;
 import java.util.Queue;
 

@@ -2,7 +2,6 @@ package edu.duke.ece568.communication.world;
 
 import edu.duke.ece568.communication.amazon.AmazonCommunicator;
 import edu.duke.ece568.database.PostgreSQLJDBC;
-import edu.duke.ece568.proto.UpsAmazon;
 import edu.duke.ece568.proto.WorldUps;
 import edu.duke.ece568.utils.AUMsgFactory;
 import edu.duke.ece568.utils.Logger;
