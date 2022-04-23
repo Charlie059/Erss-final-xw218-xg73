@@ -27,7 +27,7 @@ public class AUMsgFactory {
 
     public UpsAmazon.UShipmentStatusUpdate generateUShipmentStatusUpdate(UpsAmazon.AUShipmentUpdate auShipmentUpdate, long seqnum){
         UpsAmazon.UShipmentStatusUpdate.Builder uShipmentStatusUpdate = UpsAmazon.UShipmentStatusUpdate.newBuilder();
-        uShipmentStatusUpdate.setAuShipmentUpdate(0, auShipmentUpdate);
+        uShipmentStatusUpdate.addAuShipmentUpdate(auShipmentUpdate);
         uShipmentStatusUpdate.setSeqnum(seqnum);
         return uShipmentStatusUpdate.build();
     }

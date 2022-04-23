@@ -216,7 +216,7 @@ public class WorldRecvHandler implements Runnable{
             // Two possible situations here:
             // 1. The truck is finished all delivery -> status:  idle
             // 2. The truck is arrived at warehouse -> status:  arrive warehouse
-            Logger.getSingleton().write("Receive ufinished from truck x:" + uFinished.getX() + ", y: " + uFinished.getY() + ", Status: " + uFinished.getStatus() + "\n");
+            Logger.getSingleton().write("Receive ufinished from truck x:" + uFinished.getX() + ", y: " + uFinished.getY() + ", \"Status\": " + uFinished.getStatus() + "\n");
             String status = null;
             if(uFinished.getStatus().equals("arrive warehouse")){
                 status = "ARRIVEWH";
