@@ -14,7 +14,7 @@ import java.io.IOException;
 import static edu.duke.ece568.utils.GPBHelper.sendMsgTo;
 
 public class App {
-    final String WORLD_HOST = "207.246.90.49";
+    final String WORLD_HOST = "45.77.144.105";
     final int WORLD_PORT = 12345;
     final int AMAZON_PORT = 12345;
 
@@ -38,7 +38,7 @@ public class App {
         worldConnector.setupConnection();
 
         // Setup World speed
-        WorldUps.UCommands.Builder worldSpeed =  WorldUps.UCommands.newBuilder().setSimspeed(50);
+        WorldUps.UCommands.Builder worldSpeed =  WorldUps.UCommands.newBuilder().setSimspeed(10);
         sendMsgTo(worldSpeed.build(), worldConnector.getWorld_socket().getOutputStream());
 
         // Setup Amazon Connection
