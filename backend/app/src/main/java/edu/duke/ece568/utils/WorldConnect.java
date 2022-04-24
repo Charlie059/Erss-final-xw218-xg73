@@ -152,19 +152,20 @@ public class WorldConnect {
     public void init_truck(int nums) {
         // Add truck to the truck list
         IntStream.range(0, nums).forEach(i -> {
+            int id = initTruckInDatabase(0, 0);
             WorldUps.UInitTruck.Builder truck = WorldUps.UInitTruck.newBuilder();
-            truck.setId(i + 1).setX(0).setY(0);
+            truck.setId(id + 1).setX(0).setY(0);
             this.trucks.add(truck.build());
-            initTruckInDatabase(0, 0);
 
         });
     }
 
-    public void initTruckInDatabase(int x, int y){
-        String insert_sql = "INSERT INTO public.ups_truck (\"TruckID\", x, y, \"Available\", \"Status\") VALUES (DEFAULT, "+ x + " ," + y + " , true, 'idle');";
+    public int initTruckInDatabase(int x, int y){
+        String insert_sql = "INSERT INTO public.ups_truck (\"TruckID\", x, y, \"Available\", \"Status\") VALUES (DEFAULT, "+ x + " ," + y + " , true, 'idle') RETURNING \"TruckID\";";
         //String insert_sql = "INSERT INTO public.ups_truck (x, y, Available, Status) VALUES ( " + x + ", " + y + ", true, 'idle');";
         //System.out.println(insert_sql);
-        PostgreSQLJDBC.getInstance().runSQLUpdate(insert_sql);
+        int truck_id = PostgreSQLJDBC.getInstance().initTruck(insert_sql);
+        return truck_id;
     }
 
 }

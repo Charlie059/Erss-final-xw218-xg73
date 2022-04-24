@@ -101,6 +101,27 @@ public class PostgreSQLJDBC {
         }
         return ticket_id;
     }
+
+    public int initTruck(String sql){
+        Statement statement;
+        int ticket_id=-1;
+        try {
+            Connection c = connectDB();
+            statement = c.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+            if(result.next()){
+                ticket_id = result.getInt("TruckID");
+            }
+            result.close();
+            statement.close();
+            c.close();
+
+        } catch (SQLException e) {
+            Logger logger = Logger.getSingleton();
+            logger.write(e.getMessage());
+        }
+        return ticket_id;
+    }
     public int selectIdleTruck(String sql){
         Statement statement;
         int truck_id=-1;
