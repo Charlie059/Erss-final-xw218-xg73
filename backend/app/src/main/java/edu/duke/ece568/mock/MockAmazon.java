@@ -97,11 +97,11 @@ public class MockAmazon {
 
                 // Gen new product
                 UpsAmazon.Product.Builder apples = UpsAmazon.Product.newBuilder().setDescription("Apple").setCount(2);
-                UpsAmazon.Product.Builder bananas = UpsAmazon.Product.newBuilder().setDescription("Banananana").setCount(1);
+//                UpsAmazon.Product.Builder bananas = UpsAmazon.Product.newBuilder().setDescription("Banananana").setCount(1);
 
                 // Add Shipment List
-                aShippingRequest.addShipment(UpsAmazon.AShipment.newBuilder().setPackageId(2).setDestX(3).setDestY(4).setEmailaddress("xg73@duke.edu").addProduct(apples).addProduct(bananas));
-                aShippingRequest.addShipment(UpsAmazon.AShipment.newBuilder().setPackageId(1).setDestX(1).setDestY(1).setEmailaddress("pad128g@icloud.com").addProduct(apples));
+                aShippingRequest.addShipment(UpsAmazon.AShipment.newBuilder().setPackageId(1).setDestX(3).setDestY(4).setEmailaddress("xg73@duke.edu").addProduct(apples));
+               // aShippingRequest.addShipment(UpsAmazon.AShipment.newBuilder().setPackageId(1).setDestX(1).setDestY(1).setEmailaddress("pad128g@icloud.com").addProduct(apples));
 
                 // Gen seqNum
                 aShippingRequest.setSeqnum(SeqNumGenerator.getInstance().getCurrent_id());

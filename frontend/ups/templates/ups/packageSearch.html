@@ -1,6 +1,7 @@
 {% extends "ups/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
+<h2 style="padding: 15px"></h2>
 <div class="content-section">
     <form method="POST">
         {% csrf_token %}
@@ -9,7 +10,7 @@
             {{ form|crispy }}
         </fieldset>
         <div class="form-group">
-            <button class="btn btn-outline-info" type="submit">Search</button>
+            <button class="btn btn-warning" type="submit">Search</button>
         </div>
     </form>
 </div>

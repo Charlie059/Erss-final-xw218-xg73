@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from users import views as user_views
+from ups import views as ups_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -12,4 +13,5 @@ urlpatterns = [
     path('', include('ups.urls')),
     path('verification/', include('verify_email.urls')),
     path('updatePackage/', user_views.updatePackage, name='package-update'),
+    path('searchPostalFee/', ups_views.SearchPostalFee, name='search-postal-fee')
 ]
