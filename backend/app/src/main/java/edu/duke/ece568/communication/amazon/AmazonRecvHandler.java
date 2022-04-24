@@ -157,7 +157,7 @@ public class AmazonRecvHandler implements Runnable{
             List<UpsAmazon.AUShipmentUpdate> ids = aShipmentStatusUpdate.getAuShipmentUpdateList();
             for(int i=0; i<ids.size(); i++){
                 //TODO add update time and status detail
-                String update_package = "UPDATE ups_package SET \"Status\" = " + ids.get(0).getStatus() + " WHERE \"PackageID\" = " + ids.get(i).getPackageId() + ";";
+                String update_package = "UPDATE ups_package SET \"Status\" = '" + ids.get(0).getStatus() + "' WHERE \"PackageID\" = " + ids.get(i).getPackageId() + ";";
                 Logger.getSingleton().write(update_package);
                 PostgreSQLJDBC.getInstance().runSQLUpdate(update_package);
             }
