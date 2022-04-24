@@ -54,7 +54,7 @@ def updatePackage(request):
             y = form.cleaned_data.get('y')
             data = Package.objects.filter(Q(PackageID=packageID) & Q(EmailAddress=request.user.email))
             if len(data) is 1:
-                if data[0].Status == "PROC":
+                if data[0].Status != "DELI" and data[0].Status != "DELD":
                     package = data[0]
                     package.x = x
                     package.y = y
