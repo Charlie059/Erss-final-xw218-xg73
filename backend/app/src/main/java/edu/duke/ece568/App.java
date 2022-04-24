@@ -5,10 +5,13 @@ package edu.duke.ece568;
 
 import edu.duke.ece568.communication.amazon.AmazonCommunicator;
 import edu.duke.ece568.communication.world.WorldCommunicator;
+import edu.duke.ece568.proto.WorldUps;
 import edu.duke.ece568.utils.AmazonConnector;
 import edu.duke.ece568.utils.WorldConnect;
 
 import java.io.IOException;
+
+import static edu.duke.ece568.utils.GPBHelper.sendMsgTo;
 
 public class App {
     final String WORLD_HOST = "207.246.90.49";
@@ -33,6 +36,10 @@ public class App {
         // Setup World Connection
         worldConnector = new WorldConnect(WORLD_HOST, WORLD_PORT);
         worldConnector.setupConnection();
+
+        // Setup World speed
+        WorldUps.UCommands.Builder worldSpeed =  WorldUps.UCommands.newBuilder().setSimspeed(50);
+        sendMsgTo(worldSpeed.build(), worldConnector.getWorld_socket().getOutputStream());
 
         // Setup Amazon Connection
         amazonConnector = new AmazonConnector(AMAZON_PORT, worldConnector.getWorldid());
