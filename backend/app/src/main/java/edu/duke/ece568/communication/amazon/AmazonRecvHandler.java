@@ -264,8 +264,8 @@ public class AmazonRecvHandler implements Runnable{
 
             // (7) TODO first Generate UShippingResponse CMD and wrap it to auResponse to Amazon
             ArrayList<UpsAmazon.UTracking> uTrackings = new ArrayList<>();
-            for(UpsAmazon.UTracking uTracking : uTrackings){
-                uTrackings.add(auMsgFactory.generateUTracking(uTracking.getPackageId(), TrackNumberGenerator.getInstance().getCurrent_id()));
+            for(UpsAmazon.AShipment aShipment : aShippingRequest.getShipmentList()){
+                uTrackings.add(auMsgFactory.generateUTracking(aShipment.getPackageId(), TrackNumberGenerator.getInstance().getCurrent_id()));
             }
             UpsAmazon.UShippingResponse uShippingResponse = auMsgFactory.generateUShippingResponse(uTrackings, truck_id, SeqNumGenerator.getInstance().getCurrent_id());
             Logger.getSingleton().write("send to: " + uShippingResponse);

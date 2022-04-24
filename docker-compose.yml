@@ -39,12 +39,12 @@ services:
     depends_on:
       - web
 
-#  run:
-#    build: ./backend
-#    depends_on:
-#      - database
-#      - web
-#      - web-init
+  run:
+    build: ./backend
+    depends_on:
+      - database
+      - web
+      - web-init
 
-#      ports:
-#      - "12345:12345"
+    ports:
+      - "12345:12345"
