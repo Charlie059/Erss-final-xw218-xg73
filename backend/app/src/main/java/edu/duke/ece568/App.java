@@ -13,7 +13,7 @@ import java.io.IOException;
 public class App {
     final String WORLD_HOST = "207.246.90.49";
     final int WORLD_PORT = 12345;
-    final int AMAZON_PORT = 11111;
+    final int AMAZON_PORT = 12345;
 
     private WorldConnect worldConnector;
     private WorldCommunicator worldCommunicator;

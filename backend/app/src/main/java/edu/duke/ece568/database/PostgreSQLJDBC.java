@@ -39,7 +39,7 @@ public class PostgreSQLJDBC {
         Connection c;
         try {
             Class.forName("org.postgresql.Driver");
-            c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres",
+            c = DriverManager.getConnection("jdbc:postgresql://database:5432/postgres",
                     "postgres", "postgres");
             return c;
         } catch (SQLException | ClassNotFoundException e) {
