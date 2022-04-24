@@ -122,6 +122,7 @@ public class PostgreSQLJDBC {
         }
         return ticket_id;
     }
+
     public int selectIdleTruck(String sql){
         Statement statement;
         int truck_id=-1;
