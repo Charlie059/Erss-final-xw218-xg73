@@ -38,7 +38,7 @@ public class App {
         worldConnector.setupConnection();
 
         // Setup World speed
-        WorldUps.UCommands.Builder worldSpeed =  WorldUps.UCommands.newBuilder().setSimspeed(10);
+        WorldUps.UCommands.Builder worldSpeed =  WorldUps.UCommands.newBuilder().setSimspeed(100);
         sendMsgTo(worldSpeed.build(), worldConnector.getWorld_socket().getOutputStream());
 
         // Setup Amazon Connection
