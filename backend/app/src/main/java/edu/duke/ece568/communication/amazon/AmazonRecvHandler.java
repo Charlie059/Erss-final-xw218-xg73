@@ -253,7 +253,7 @@ public class AmazonRecvHandler implements Runnable{
             // (4) Based on the list of AShipment(packageID, x, y, emailAddress), create a list of UPS_Package
             // Status = PROC, CreateTime and UpdateTime, Owner_id = null, TicketId = (2)'s ticket_id ,TruckID = (3).truckID
             for(UpsAmazon.AShipment aShipment: aShippingRequest.getShipmentList()){
-                String insert_package = "INSERT INTO public.ups_package (\"PackageID\", x, y, \"EmailAddress\", \"Status\", \"CreateTime\", \"UpdateTime\", \"TruckID_id\", \"TicketID_id\" ) VALUES (DEFAULT, " + aShipment.getDestX() + ", " + aShipment.getDestY() + ", '"+aShipment.getEmailaddress()+ "', 'PROC', '" + TimeGetter.getCurrTime() + "', '" + TimeGetter.getCurrTime() + "', " + truck_id + ", " + ticket_id +" );";
+                String insert_package = "INSERT INTO public.ups_package (\"PackageID\", x, y, \"EmailAddress\", \"Status\", \"CreateTime\", \"UpdateTime\", \"TruckID_id\", \"TicketID_id\" ) VALUES ( "+aShipment.getPackageId()+ "," + aShipment.getDestX() + ", " + aShipment.getDestY() + ", '"+aShipment.getEmailaddress()+ "', 'PROC', '" + TimeGetter.getCurrTime() + "', '" + TimeGetter.getCurrTime() + "', " + truck_id + ", " + ticket_id +" );";
                 PostgreSQLJDBC.getInstance().runSQLUpdate(insert_package);
                 for(UpsAmazon.Product product : aShipment.getProductList()){
                     String insert_package_detail = "INSERT INTO public.ups_item (\"id\", \"ItemName\", \"Count\", \"PackageID_id\") VALUES (DEFAULT, '" + product.getDescription() + "', " + product.getCount() + ", " + aShipment.getPackageId() + ");";
