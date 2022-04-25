@@ -1,0 +1,11 @@
+Product Differentiation 
+
+1. Email verification: When user register, an email will be sent to them. User can log in only after they verify email
+2. Truck assigned Algorithm: Best suitable truck will be selected using open source algorithm
+3. Truck Query: user can query truck destination, status and other information in our web
+4. Cost estimation: user can get shipment price by specifying destination based on user’s current location
+5. Arrival time estimation: user can get  package arrival time estimation by based on user’s current location
+6. Edit profile: user can edit profile
+7. Edit avatars: user can choose their avatars
+8. UPS introduction: the home page illustrate UPS service in detail
+9. Beautiful UI
