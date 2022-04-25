@@ -13,5 +13,6 @@ urlpatterns = [
     path('', include('ups.urls')),
     path('verification/', include('verify_email.urls')),
     path('updatePackage/', user_views.updatePackage, name='package-update'),
-    path('searchPostalFee/', ups_views.SearchPostalFee, name='search-postal-fee')
+    path('searchPostalFee/', ups_views.SearchPostalFee, name='search-postal-fee'),
+    path('searchTruck/', ups_views.SearchTruck, name='search-truck')
 ]

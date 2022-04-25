@@ -10,3 +10,7 @@ class SearchPackageForm(forms.Form):
 class SearchPostalFeeForm(forms.Form):
     destX = forms.IntegerField(min_value=0)
     destY = forms.IntegerField(min_value=0)
+
+
+class SearchTruckForm(forms.Form):
+    truckID = forms.IntegerField(min_value=0)

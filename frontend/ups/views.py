@@ -7,8 +7,8 @@ from django.shortcuts import render
 from django.views.generic import DetailView
 from django.contrib import messages
 
-from ups.forms import SearchPackageForm, SearchPostalFeeForm
-from ups.models import Package
+from ups.forms import SearchPackageForm, SearchPostalFeeForm, SearchTruckForm
+from ups.models import Package, Truck
 
 posts = [
     {
@@ -66,3 +66,14 @@ def SearchPostalFee(request):
                 timeEst = 2
 
     return render(request, 'ups/packagePrice.html', {'form': form, "data": data, "timeEst": timeEst})
+
+
+def SearchTruck(request):
+    data = []
+    form = SearchTruckForm(request.POST)
+    if request.method == 'POST':
+        if form.is_valid():
+            truckID = form.cleaned_data.get('truckID')
+            data = Truck.objects.filter(Q(TruckID=truckID))
+
+    return render(request, 'ups/truckSearch.html', {'form': form, "data": data})
