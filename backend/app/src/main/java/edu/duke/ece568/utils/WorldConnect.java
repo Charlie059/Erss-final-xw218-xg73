@@ -60,7 +60,7 @@ public class WorldConnect {
         //TODO save truck info into database
 
         // Init 10 trucks with x = 0 and y = 0
-        init_truck(10);
+        init_truck(1000);
 
         // Init uConnect message
         WorldUps.UConnect uConnect = init_world_connect_info(this.trucks, true, 1);
